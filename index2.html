@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Structural Walkthrough Dictionary • Instagram Style</title>
+  <style>
+    :root {
+      --bg: #fafafa;
+      --card-bg: #ffffff;
+      --card-back-bg: #ffffff;
+      --text: #262626;
+      --text-secondary: #8e8e8e;
+      --text-muted: #c7c7c7;
+      --border: #dbdbdb;
+      --shadow: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-hover: 0 4px 12px rgba(0,0,0,0.08);
+      --badge-bg: #f1f1f1;
+      --badge-text: #262626;
+      --button-bg: #ffffff;
+      --button-border: #dbdbdb;
+      --button-text: #262626;
+      --hover-transform: none;
+      --accent-gradient: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      --primary-button-bg: #0095f6;
+      --primary-button-text: white;
+      --review-green: #0095f6;
+    }
+    .dark {
+      --bg: #000000;
+      --card-bg: #1a1a1a;
+      --card-back-bg: #1a1a1a;
+      --text: #f5f5f5;
+      --text-secondary: #a8a8a8;
+      --text-muted: #555555;
+      --border: #363636;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-hover: 0 4px 12px rgba(0,0,0,0.5);
+      --badge-bg: #262626;
+      --badge-text: #f5f5f5;
+      --button-bg: #1a1a1a;
+      --button-border: #363636;
+      --button-text: #f5f5f5;
+      --primary-button-bg: #0095f6;
+      --primary-button-text: white;
+      --review-green: #0095f6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 0 16px;
+      transition: background 0.3s, color 0.3s;
+      max-width: 935px;
+      margin: 0 auto;
+    }
+    /* Top navigation bar – Instagram style */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 20;
+    }
+    .nav-logo {
+      font-size: 22px;
+      font-weight: 600;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-actions {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .icon-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--text);
+      padding: 4px;
+      line-height: 1;
+    }
+    .icon-btn:hover { opacity: 0.7; }
+    .controls-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+      background: var(--card-bg);
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    #search {
+      flex: 2;
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--text);
+      min-width: 180px;
+    }
+    #volumeFilter, #sortBy {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--text);
+      min-width: 130px;
+    }
+    .pill-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--button-bg);
+      color: var(--button-text);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .pill-btn:hover { background: var(--badge-bg); }
+    .pill-btn.active { background: var(--accent-gradient); color: white; border-color: transparent; }
+    .stats {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-left: auto;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      padding-bottom: 30px;
+    }
+    .card-grid.list-view {
+      display: block;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+      position: relative;
+    }
+    .card-grid:not(.list-view) .card:hover { box-shadow: var(--shadow-hover); }
+    .card-inner {
+      position: relative;
+      transition: transform 0.4s ease;
+      transform-style: preserve-3d;
+    }
+    .card.flipped .card-inner { transform: rotateY(180deg); }
+    .card-front, .card-back {
+      backface-visibility: hidden;
+      padding: 20px;
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .card-back {
+      position: absolute;
+      inset: 0;
+      transform: rotateY(180deg);
+      background: var(--card-back-bg);
+      overflow-y: auto;
+    }
+    .term {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+    .category {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+    .definition {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+    .volume-badge {
+      display: inline-block;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+    .flip-hint {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: 10px;
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+      font-weight: 500;
+    }
+    .review-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--review-green);
+      color: white;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .no-results {
+      text-align: center;
+      color: var(--text-secondary);
+      padding: 40px;
+      grid-column: 1 / -1;
+      font-size: 14px;
+    }
+    /* List view – Instagram feed style */
+    .list-view .card {
+      display: block;
+      border-radius: 0;
+      margin-bottom: 8px;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      overflow: visible;
+    }
+    .list-view .card:last-child { border-bottom: none; }
+    .list-view .card-inner {
+      transform: none !important;
+      transition: none;
+      width: 100%;
+      padding: 14px 0;
+    }
+    .list-view .card-front, .list-view .card-back {
+      backface-visibility: visible;
+      position: static;
+      transform: none;
+      min-height: auto;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .list-view .card-back { display: none; }
+    .list-view .card.expanded .card-back {
+      display: block;
+      margin-top: 10px;
+      padding: 16px;
+      background: var(--card-back-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .list-view .flip-hint, .list-view .category { display: none; }
+    .list-view .term { font-size: 15px; margin: 0; }
+    .list-view .volume-badge { margin: 0; }
+    .list-view .definition { font-size: 14px; }
+    .list-view .review-badge { top: 50%; transform: translateY(-50%); right: 0; }
+    .highlight {
+      animation: highlightPulse 1s ease-in-out;
+    }
+    @keyframes highlightPulse {
+      0% { box-shadow: 0 0 0 0 #0095f6; }
+      50% { box-shadow: 0 0 0 6px rgba(0,149,246,0.2); }
+      100% { box-shadow: 0 0 0 0 rgba(0,149,246,0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Instagram-style top bar -->
+  <div class="nav-bar">
+    <span class="nav-logo">Structural Walkthrough</span>
+    <div class="nav-actions">
+      <button class="icon-btn" id="darkToggle" title="Toggle dark mode">🌙</button>
+      <button class="icon-btn" id="viewToggle" title="Toggle list/grid view">📋</button>
+      <button class="icon-btn" id="randomBtn" title="Random card">🎲</button>
+    </div>
+  </div>
+
+  <!-- Controls bar -->
+  <div class="controls-bar">
+    <input type="text" id="search" placeholder="🔍 Search terms…" autofocus>
+    <select id="volumeFilter">
+      <option value="all">All Volumes</option>
+      <option value="1">Volume 1 (1–90)</option>
+      <option value="2">Volume 2 (91–180)</option>
+      <option value="3">Volume 3 (181–250)</option>
+    </select>
+    <select id="sortBy">
+      <option value="default">Default (Volume Order)</option>
+      <option value="az">Alphabetical (A–Z)</option>
+      <option value="za">Alphabetical (Z–A)</option>
+      <option value="topic">By UI/UX Topic</option>
+    </select>
+    <div class="stats">
+      <span id="reviewedCount">Reviewed: 0/250</span>
+      <button id="resetReviewed" class="pill-btn">↺ Reset</button>
+    </div>
+  </div>
+
+  <div class="card-grid" id="cardGrid"></div>
+
+  <script>
+    (async function() {
+      const res = await fetch('dictionary.json');
+      const dictionary = await res.json();
+      const cardGrid = document.getElementById('cardGrid');
+      const searchInput = document.getElementById('search');
+      const volumeFilter = document.getElementById('volumeFilter');
+      const sortBySelect = document.getElementById('sortBy');
+      const randomBtn = document.getElementById('randomBtn');
+      const darkToggle = document.getElementById('darkToggle');
+      const viewToggle = document.getElementById('viewToggle');
+      const reviewedCountEl = document.getElementById('reviewedCount');
+      const resetReviewedBtn = document.getElementById('resetReviewed');
+
+      const topicMapping = {
+        "Core Vocabulary": "1. Fundamentals",
+        "Containers & Widgets": "1. Fundamentals",
+        "Layout & Composition": "2. Layout",
+        "Navigation Systems": "3. Navigation",
+        "Navigation & Wayfinding Details": "3. Navigation",
+        "Interaction & Affordance": "4. Interaction",
+        "Interactive Micro‑Patterns": "4. Interaction",
+        "State & Feedback": "5. State & Feedback",
+        "Patterns & Reusable Structures": "6. Patterns",
+        "Content Display & Formatting": "6. Patterns",
+        "Form & Input Patterns": "6. Patterns",
+        "System & Ecosystem": "7. System & Ecosystem",
+        "Advanced & Meta Terms": "7. System & Ecosystem",
+        "Micro‑Containers & Detail Elements": "2. Layout",
+        "Behavioral & Animation Containers": "4. Interaction",
+        "Responsive & Multi‑Viewport": "2. Layout",
+        "Platform & Integration": "7. System & Ecosystem",
+        "Meta‑Structural & Workflow": "7. System & Ecosystem",
+        "Advanced Interaction Patterns": "4. Interaction",
+        "Niche & Domain‑Specific Containers": "6. Patterns",
+        "Data & Visualization": "6. Patterns",
+        "Accessibility & Inclusion": "8. Accessibility",
+        "Performance & Loading Strategies": "9. Performance",
+        "Internationalization & Localization": "10. Internationalization",
+        "Security & Privacy": "11. Security",
+        "Maintenance & Technical Debt": "12. Maintenance",
+        "Future‑Forward & Emerging Patterns": "13. Future‑Forward"
+      };
+
+      const STORAGE_KEY = 'sw_dictionary_reviewed_ig';
+      let reviewedTerms = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'));
+
+      function saveReviews() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([...reviewedTerms]));
+        updateStats();
+      }
+      function toggleReview(term) {
+        if (reviewedTerms.has(term)) reviewedTerms.delete(term);
+        else reviewedTerms.add(term);
+        saveReviews();
+      }
+      function isReviewed(term) { return reviewedTerms.has(term); }
+      function updateStats() {
+        reviewedCountEl.textContent = `Reviewed: ${reviewedTerms.size}/250`;
+      }
+      function resetReviews() {
+        if (confirm('Clear all review progress?')) {
+          reviewedTerms.clear();
+          saveReviews();
+          renderCards(getFilteredAndSorted());
+        }
+      }
+
+      // Dark mode
+      if (localStorage.getItem('sw_dark_mode_ig') === 'true') {
+        document.body.classList.add('dark');
+        darkToggle.textContent = '☀️';
+      }
+      darkToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        localStorage.setItem('sw_dark_mode_ig', isDark);
+        darkToggle.textContent = isDark ? '☀️' : '🌙';
+      });
+
+      // View toggle
+      let isListView = false;
+      viewToggle.addEventListener('click', () => {
+        isListView = !isListView;
+        cardGrid.classList.toggle('list-view', isListView);
+        viewToggle.textContent = isListView ? '🟦' : '📋';
+        renderCards(getFilteredAndSorted());
+      });
+
+      function getFilteredAndSorted() {
+        const query = searchInput.value.toLowerCase().trim();
+        const volume = volumeFilter.value;
+        const sortMode = sortBySelect.value;
+        let filtered = [...dictionary];
+        if (volume !== 'all') filtered = filtered.filter(e => e.volume == volume);
+        if (query) {
+          filtered = filtered.filter(e =>
+            e.term.toLowerCase().includes(query) ||
+            e.definition.toLowerCase().includes(query) ||
+            e.category.toLowerCase().includes(query)
+          );
+        }
+        if (sortMode === 'az') filtered.sort((a,b) => a.term.localeCompare(b.term));
+        else if (sortMode === 'za') filtered.sort((a,b) => b.term.localeCompare(a.term));
+        else if (sortMode === 'topic') {
+          filtered.sort((a,b) => {
+            const ta = topicMapping[a.category] || 'Z. Other';
+            const tb = topicMapping[b.category] || 'Z. Other';
+            if (ta < tb) return -1;
+            if (ta > tb) return 1;
+            return a.term.localeCompare(b.term);
+          });
+        }
+        return filtered;
+      }
+
+      function renderCards(entries) {
+        cardGrid.innerHTML = '';
+        if (entries.length === 0) {
+          cardGrid.innerHTML = '<div class="no-results">No matching terms found.</div>';
+          updateStats();
+          return;
+        }
+        entries.forEach(entry => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.dataset.term = entry.term;
+          if (isReviewed(entry.term)) card.classList.add('reviewed');
+
+          if (isListView) {
+            card.innerHTML = `
+              <div class="card-inner">
+                <div class="card-front">
+                  <span class="volume-badge">Vol. ${entry.volume}</span>
+                  <span class="term">${entry.term}</span>
+                  <span style="flex:1"></span>
+                  <span class="flip-hint" style="border:none;margin:0;padding:0;">↻</span>
+                </div>
+              </div>
+            `;
+            card.addEventListener('click', () => {
+              const wasExpanded = card.classList.contains('expanded');
+              document.querySelectorAll('.list-view .card.expanded').forEach(c => c.classList.remove('expanded'));
+              if (!wasExpanded) {
+                card.classList.add('expanded');
+                if (!card.querySelector('.card-back')) {
+                  const back = document.createElement('div');
+                  back.className = 'card-back';
+                  back.innerHTML = `<div class="definition">${entry.definition}</div>`;
+                  card.appendChild(back);
+                }
+              } else {
+                card.classList.remove('expanded');
+              }
+              toggleReview(entry.term);
+              card.classList.toggle('reviewed', isReviewed(entry.term));
+              updateStats();
+            });
+          } else {
+            card.innerHTML = `
+              <div class="card-inner">
+                <div class="card-front">
+                  <span class="volume-badge">Vol. ${entry.volume}</span>
+                  <div class="term">${entry.term}</div>
+                  <div class="category">${entry.category}</div>
+                  <div class="flip-hint">↻ Tap to reveal definition</div>
+                </div>
+                <div class="card-back">
+                  <div class="term">${entry.term}</div>
+                  <div class="definition">${entry.definition}</div>
+                  <div class="flip-hint">↻ Tap to hide</div>
+                </div>
+              </div>
+            `;
+            card.addEventListener('click', () => {
+              card.classList.toggle('flipped');
+              toggleReview(entry.term);
+              card.classList.toggle('reviewed', isReviewed(entry.term));
+              updateStats();
+            });
+          }
+
+          if (isReviewed(entry.term)) {
+            const badge = document.createElement('div');
+            badge.className = 'review-badge';
+            badge.textContent = '✓';
+            card.appendChild(badge);
+          }
+          cardGrid.appendChild(card);
+        });
+        updateStats();
+      }
+
+      function scrollToCard(cardEl) {
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        cardEl.classList.add('highlight');
+        setTimeout(() => cardEl.classList.remove('highlight'), 1200);
+      }
+
+      function randomCard() {
+        const entries = getFilteredAndSorted();
+        if (entries.length === 0) return;
+        const idx = Math.floor(Math.random() * entries.length);
+        const target = [...cardGrid.children].find(c => c.dataset.term === entries[idx].term);
+        if (target) {
+          scrollToCard(target);
+          if (!isListView) {
+            target.classList.add('flipped');
+            setTimeout(() => target.classList.remove('flipped'), 2000);
+          }
+        }
+      }
+
+      searchInput.addEventListener('input', () => renderCards(getFilteredAndSorted()));
+      volumeFilter.addEventListener('change', () => renderCards(getFilteredAndSorted()));
+      sortBySelect.addEventListener('change', () => renderCards(getFilteredAndSorted()));
+      randomBtn.addEventListener('click', randomCard);
+      resetReviewedBtn.addEventListener('click', resetReviews);
+
+      renderCards(dictionary);
+    })();
+  </script>
+</body>
+</html>
