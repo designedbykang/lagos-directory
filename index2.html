@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Structural Walkthrough Dictionary • Instagram Style</title>
+  <title>Structural Walkthrough Dictionary</title>
   <style>
     :root {
       --bg: #fafafa;
@@ -55,7 +55,6 @@
       max-width: 935px;
       margin: 0 auto;
     }
-    /* Top navigation bar – Instagram style */
     .nav-bar {
       display: flex;
       align-items: center;
@@ -245,7 +244,6 @@
       grid-column: 1 / -1;
       font-size: 14px;
     }
-    /* List view – Instagram feed style */
     .list-view .card {
       display: block;
       border-radius: 0;
@@ -298,7 +296,6 @@
   </style>
 </head>
 <body>
-  <!-- Instagram-style top bar -->
   <div class="nav-bar">
     <span class="nav-logo">Structural Walkthrough</span>
     <div class="nav-actions">
@@ -308,7 +305,6 @@
     </div>
   </div>
 
-  <!-- Controls bar -->
   <div class="controls-bar">
     <input type="text" id="search" placeholder="🔍 Search terms…" autofocus>
     <select id="volumeFilter">
@@ -332,226 +328,1728 @@
   <div class="card-grid" id="cardGrid"></div>
 
   <script>
-    (async function() {
-      const res = await fetch('dictionary.json');
-      const dictionary = await res.json();
-      const cardGrid = document.getElementById('cardGrid');
-      const searchInput = document.getElementById('search');
-      const volumeFilter = document.getElementById('volumeFilter');
-      const sortBySelect = document.getElementById('sortBy');
-      const randomBtn = document.getElementById('randomBtn');
-      const darkToggle = document.getElementById('darkToggle');
-      const viewToggle = document.getElementById('viewToggle');
-      const reviewedCountEl = document.getElementById('reviewedCount');
-      const resetReviewedBtn = document.getElementById('resetReviewed');
+    // -----------------------------------------------------------------
+    // INLINE DICTIONARY DATA – replace the array below with your full
+    // dictionary.json content (the complete 250-entry array).
+    // -----------------------------------------------------------------
+    const dictionary = /* PASTE YOUR JSON ARRAY HERE */ [
+  {
+    "term": "Container",
+    "definition": "The fundamental unit of any interface analysis. A container is a bounded, rectangular region that encloses a distinct piece of content or a group of sub‑containers. It has no inherent visual style; its purpose is structural organization. In a walkthrough, every visible element—whether a button, an image, a block of text, or a purely layout‑driven wrapper—is named as a container. Naming a container identifies its role within the layout hierarchy and provides a stable anchor for design, code, and communication without referencing implementation specifics.",
+    "category": "Core Vocabulary",
+    "volume": 1
+  },
+  {
+    "term": "Viewport",
+    "definition": "The outermost container that defines the physical or digital screen boundary. It represents the entire visible canvas. In mobile interfaces, it typically matches the device screen. In desktop, it might include browser chrome or application windows. The Global Viewport Container frames all other containers, establishing the top‑level coordinate system. It also determines initial constraints—width, height, scrolling behavior—and serves as the starting node in the containment tree.",
+    "category": "Core Vocabulary",
+    "volume": 1
+  },
+  {
+    "term": "Section",
+    "definition": "A major horizontal band that divides the page vertically. Sections are high‑level structural blocks such as Header, Hero, Body, Sidebar, and Footer. Each section spans the full width of its parent and stacks sequentially from top to bottom. Labeling a band as a section immediately communicates its functional role in the page narrative, without needing to describe internal contents. Sections may themselves contain Groups, Rows, Stacks, or individual Containers.",
+    "category": "Core Vocabulary",
+    "volume": 1
+  },
+  {
+    "term": "Stack",
+    "definition": "A vertical arrangement of containers within a parent. A stack implies that children are placed one below another, typically with consistent spacing. In the Structural Walkthrough language, saying “a stack” is more descriptive than “a column” because it avoids implementation details. A stack can hold any mix of containers—text blocks, images, input fields—and is often used for content‑heavy sections or lists.",
+    "category": "Core Vocabulary",
+    "volume": 1
+  },
+  {
+    "term": "Row",
+    "definition": "A horizontal arrangement of containers sitting side‑by‑side within a parent. Rows are the backbone of toolbars, navigation bars, and card grids. The term emphasizes spatial relationship over CSS specifics. When describing a row, the walkthrough narrator lists children in left‑to‑right order, noting anchoring and proportional widths. Row containers are siblings, sharing the same vertical baseline.",
+    "category": "Core Vocabulary",
+    "volume": 1
+  },
+  {
+    "term": "Group",
+    "definition": "A container that exists purely for layout alignment. Groups hold other containers together so they can be positioned as a unit—horizontally, vertically, or in a grid. A Group has no content of its own; its children are the meaningful units. Distinguishing Groups from Widgets is critical for avoiding unnecessary DOM nesting (“div soup”). If a Group has only one child, it is often a candidate for elimination without breaking the layout logic.",
+    "category": "Core Vocabulary",
+    "volume": 1
+  },
+  {
+    "term": "Layer",
+    "definition": "A container that occupies a higher z‑index plane, overlaying other containers without disrupting the normal flow. Layers include modals, popups, dropdowns, and floating action buttons. They are independent of the top‑to‑bottom section hierarchy. Identifying a Layer in a walkthrough signals that its positioning is absolute or fixed, and it interrupts the standard spatial narrative.",
+    "category": "Core Vocabulary",
+    "volume": 1
+  },
+  {
+    "term": "Floating Layer",
+    "definition": "A special type of Layer that straddles the boundary between two sections or sits at an edge. Common examples are status badges on a hero image or a “scroll to top” button. Unlike modal layers, floating layers often appear integrated into the visual flow while technically overlapping. Describing them as floating clarifies that they break the typical stacking order yet remain visible alongside neighboring content.",
+    "category": "Core Vocabulary",
+    "volume": 1
+  },
+  {
+    "term": "Boundary",
+    "definition": "The perceived edge where one container meets another or where a section ends. In walkthroughs, boundaries help define the visual separation between structural zones. Noting boundaries—such as “the bottom boundary of the Hero Section”—aids in describing floating layers, overlapping effects, and spacing relationships without pixel values.",
+    "category": "Core Vocabulary",
+    "volume": 1
+  },
+  {
+    "term": "Hierarchy",
+    "definition": "The parent‑child tree of containers. It describes which container is inside which, forming a nested structure. The walkthrough exposes hierarchy step by step: first the viewport, then sections, then groups, then individual widgets. A well‑defined hierarchy ensures that the interface can be directly translated into a component tree. The depth of nesting is a direct indicator of layout complexity.",
+    "category": "Core Vocabulary",
+    "volume": 1
+  },
+  {
+    "term": "Avatar Container",
+    "definition": "A small, typically square or round block that holds a user’s profile image or initials. Its semantic role communicates identity instantly. Avatars are often found in Global Navigation, lists, and comment sections. The walkthrough describes it as “Avatar Container: small round block, anchored far‑right, holding profile graphic”—which implies shape, size, and content without any CSS.",
+    "category": "Containers & Widgets",
+    "volume": 1
+  },
+  {
+    "term": "Icon Container",
+    "definition": "A compact square block holding a symbolic graphic. Icons act as visual shorthand for actions, navigation, or status. They appear inside toolbars, rows, or lists. Describing an “Icon Container (magnifying glass)” links the visual metaphor with its functional role. Icons are rarely used alone; they are usually paired with a label or nested in an Action Target Container.",
+    "category": "Containers & Widgets",
+    "volume": 1
+  },
+  {
+    "term": "Badge Container",
+    "definition": "A tiny container that displays a numeric count, status dot, or short text label. It typically floats near the corner of another container, such as an icon or avatar. Badges indicate unread messages, notifications, or live status. In structural terms, a badge is a Floating Layer anchored to its parent, often independent of the normal stacking.",
+    "category": "Containers & Widgets",
+    "volume": 1
+  },
+  {
+    "term": "Text Input Container",
+    "definition": "A region designed to accept typed input from the user. It usually appears as a rectangle with a placeholder text hint. The walkthrough identifies it as “Text Input Container (search)” and notes its width relative to neighboring items. The semantic naming implies interactive affordance and data‑entry purpose, allowing developers to immediately map it to an `<input>` or a custom input component.",
+    "category": "Containers & Widgets",
+    "volume": 1
+  },
+  {
+    "term": "Action Target Container",
+    "definition": "Any container whose primary purpose is to be tapped, clicked, or otherwise activated to trigger a behavior. Buttons, tappable cards, and linked images are all action targets. The walkthrough highlights these by name and describes the expected outcome: “Action Target Container (Submit) – triggers form submission.” This naming bridges visual design and interaction design seamlessly.",
+    "category": "Containers & Widgets",
+    "volume": 1
+  },
+  {
+    "term": "Trigger Container",
+    "definition": "A specific type of Action Target that reveals or toggles another container. Menu triggers, accordion headers, and “Show more” links are triggers. The key differentiator is that they change the visibility of a target container rather than navigating away. The walkthrough connects the trigger to the controlled container, e.g., “Menu Trigger Container reveals Global Navigation Drawer.”",
+    "category": "Containers & Widgets",
+    "volume": 1
+  },
+  {
+    "term": "Label Container",
+    "definition": "A text‑only container that names or describes another element. Labels are not interactive themselves; they provide context. They sit above, beside, or inside form fields, buttons, or data displays. In a walkthrough, labels are paired with the element they describe: “Label Container (Email) sits above Text Input Container.”",
+    "category": "Containers & Widgets",
+    "volume": 1
+  },
+  {
+    "term": "Thumbnail Container",
+    "definition": "A small image container used in lists or grids as a preview. Thumbnails maintain the aspect ratio of the source content and often act as an Action Target. Walkthrough language notes relative size: “Thumbnail Container (product preview), fixed small square, sitting left of the title stack.”",
+    "category": "Containers & Widgets",
+    "volume": 1
+  },
+  {
+    "term": "Separator Container",
+    "definition": "A micro‑thin block—usually a single line—that creates visual division between groups or items. It can be horizontal or vertical. Separators carry no content; they are purely spatial. In Structural Walkthrough, naming a “Separator Container” instead of describing a “1px line” keeps the blueprint abstract and ready for theming.",
+    "category": "Containers & Widgets",
+    "volume": 1
+  },
+  {
+    "term": "Progress Indicator Container",
+    "definition": "A container that visualizes a task’s completion state. This includes progress bars, spinners, and step indicators. The walkthrough names the pattern (“Progress Indicator Container – linear bar”) and notes its placement within the flow, often between sections or inside a form. This signals the presence of a multi‑step process.",
+    "category": "Containers & Widgets",
+    "volume": 1
+  },
+  {
+    "term": "Grid",
+    "definition": "A two‑dimensional layout structure of repeating rows and columns. Grids hold cards, images, or data cells. The walkthrough may describe it as “Card Grid Container: 3‑column layout, equal‑width cells, even gap.” This immediately communicates the visual pattern without pixel specifications. Grids are powerful structural devices that reduce the need for many nested groups.",
+    "category": "Layout & Composition",
+    "volume": 1
+  },
+  {
+    "term": "Flexible Space",
+    "definition": "A container that absorbs unused space to push siblings apart. In a row, a flexible space container sits between two items, forcing one to the left edge and the other to the right. Instead of describing CSS `justify‑content`, the walkthrough says “Flexible Space Container sits between Logo and Navigation Links, anchoring them to opposite edges.” It’s a structural role, not a visual element.",
+    "category": "Layout & Composition",
+    "volume": 1
+  },
+  {
+    "term": "Scroll Container",
+    "definition": "A container that clips its content and enables vertical or horizontal scrolling. The Content Viewport is typically a scroll container. Recognizing a scroll container in a walkthrough is critical because it defines which part of the UI has an independent overflow. This distinction affects fixed headers, floating buttons, and loading behaviors.",
+    "category": "Layout & Composition",
+    "volume": 1
+  },
+  {
+    "term": "Fixed Container",
+    "definition": "A container that remains static relative to the viewport regardless of scrolling. Headers, tab bars, and floating actions often use fixed positioning. The walkthrough explicitly notes “Fixed Container (Global Navigation) – remains at top during scroll,” enabling developers to apply `position: fixed` correctly and designers to understand persistent chrome.",
+    "category": "Layout & Composition",
+    "volume": 1
+  },
+  {
+    "term": "Absolute Container",
+    "definition": "A container positioned relative to a specific parent, pulled out of the normal flow. Dropdown menus and tooltips are common examples. The walkthrough describes its anchoring: “Absolute Container (Dropdown) – positioned below the Trigger Container, aligned left.” This gives exact spatial information without coordinates.",
+    "category": "Layout & Composition",
+    "volume": 1
+  },
+  {
+    "term": "Off‑Canvas Container",
+    "definition": "A container that slides in from the edge of the viewport, overlapping the main content. Typical off‑canvas elements are hamburger menus, filter panels, and side drawers. The walkthrough labels it “Off‑Canvas Container (Navigation Drawer) – slides from left edge over Content Viewport, triggered by Menu Trigger Container.” This pattern‑aware naming eliminates ambiguity.",
+    "category": "Layout & Composition",
+    "volume": 1
+  },
+  {
+    "term": "Carousel Container",
+    "definition": "A horizontal strip of items that can be swiped or scrolled horizontally. Each item is often a card or thumbnail. The walkthrough describes it as a “Carousel Container – horizontal scroll of Card Containers,” and may note the presence of a Behavioral Grouping for the swipe interaction. This pattern combines layout and interaction into a single recognized term.",
+    "category": "Layout & Composition",
+    "volume": 1
+  },
+  {
+    "term": "Overlay",
+    "definition": "A semi‑transparent layer that sits between a modal or drawer and the background. It usually dims the content to focus attention. The walkthrough names it “Overlay Container – dark transparent layer covering Content Viewport, revealed with Modal Layer.” Recognizing overlays helps developers implement focus trapping and dismissal behavior correctly.",
+    "category": "Layout & Composition",
+    "volume": 1
+  },
+  {
+    "term": "Aspect Ratio Container",
+    "definition": "A container that maintains a fixed width‑to‑height ratio regardless of content size. Used for hero images, video embeds, and thumbnails. Instead of giving dimensions, the walkthrough says “Aspect Ratio Container (16:9) holding a media placeholder.” This abstraction communicates the constraint without any magic numbers.",
+    "category": "Layout & Composition",
+    "volume": 1
+  },
+  {
+    "term": "Safe Area Container",
+    "definition": "A container that respects device‑specific insets, such as notches, status bars, and home indicators. On mobile, this ensures content isn’t clipped by hardware. The walkthrough mentions it when relevant: “Global Viewport Container includes Safe Area Container, with top and bottom padding to avoid notch and gesture bar.” This signals platform‑aware design.",
+    "category": "Layout & Composition",
+    "volume": 1
+  },
+  {
+    "term": "Global Navigation",
+    "definition": "A persistent, full‑width bar at the top of the viewport containing brand identity, primary links, and user controls. It appears on nearly every screen and provides orientation. The walkthrough might say: “Global Navigation Container: fixed top, containing Logo Container (left), State Selector (center tabs), and Utility Rail (right icons).” This high‑level pattern name instantly conveys structure and role.",
+    "category": "Navigation Systems",
+    "volume": 1
+  },
+  {
+    "term": "Tab Bar",
+    "definition": "A horizontal bar, usually at the bottom on mobile or top on desktop, that holds mutually exclusive section toggles. Each tab is an Action Target Container. The walkthrough identifies it as “Tab Bar Container: 4 equal‑width tab slots, fixed bottom.” It’s a navigation system that suggests sibling screens, enabling cross‑screen continuity language.",
+    "category": "Navigation Systems",
+    "volume": 1
+  },
+  {
+    "term": "Sidebar",
+    "definition": "A vertical column on the left or right edge containing navigation links, filters, or tools. It persists alongside the Content Viewport. The walkthrough might label it “Sidebar Container: fixed left rail, containing Navigation Link Stack and Contextual Toolbar.” Sidebars are essential in dashboard interfaces for high‑density navigation.",
+    "category": "Navigation Systems",
+    "volume": 1
+  },
+  {
+    "term": "Breadcrumb Trail",
+    "definition": "A small horizontal list of link containers showing the user’s location within a hierarchy. Each breadcrumb is an Action Target that navigates upward. The walkthrough describes it as “Breadcrumb Container: horizontal row of Link Containers separated by Separator Containers.” It is a secondary navigation system that supports spatial awareness.",
+    "category": "Navigation Systems",
+    "volume": 1
+  },
+  {
+    "term": "Back Button Container",
+    "definition": "A specific Action Target that navigates to the previous screen or state. Typically placed in the top‑left corner of a screen or Global Navigation. The walkthrough explicitly names it “Back Button Container: far‑left, holding arrow Icon Container and optional Label Container.” Its presence immediately implies navigational hierarchy.",
+    "category": "Navigation Systems",
+    "volume": 1
+  },
+  {
+    "term": "Navigation Drawer",
+    "definition": "An off‑canvas panel that slides in, usually from the left, containing primary navigation links and optional user info. It is triggered by a Menu Trigger Container. The walkthrough names the entire assembly “Navigation Drawer Container: off‑canvas overlay, reveals on trigger tap, contains Avatar Container and Navigation Link Stack.”",
+    "category": "Navigation Systems",
+    "volume": 1
+  },
+  {
+    "term": "Dropdown Menu",
+    "definition": "A temporary, absolutely‑positioned list of actions that appears below a trigger. It floats above other content. The walkthrough pattern: “Dropdown Menu Container: absolute, aligned to Trigger Container, containing a vertical stack of Menu Item Action Targets.” This description captures the interaction and layout at once.",
+    "category": "Navigation Systems",
+    "volume": 1
+  },
+  {
+    "term": "Pagination Container",
+    "definition": "A horizontal row of numbered page links or “next/previous” buttons at the bottom of a list. It signals that content extends beyond the current viewport. The walkthrough might say “Pagination Container: centered row of small Action Target Containers, with current page indicated by a State Indicator Container.”",
+    "category": "Navigation Systems",
+    "volume": 1
+  },
+  {
+    "term": "Stepper Container",
+    "definition": "A progress‑through‑steps indicator often used in multi‑step forms or onboarding. It shows the current step, completed steps, and upcoming ones. The walkthrough labels it “Stepper Container: horizontal sequence of Step Indicator Containers, connected by Progress Line Containers.” This reveals the process structure directly.",
+    "category": "Navigation Systems",
+    "volume": 1
+  },
+  {
+    "term": "Tab Panel Container",
+    "definition": "The content area that changes when a tab is selected. It’s the sibling of the Tab Bar. The walkthrough identifies it as “Tab Panel Container: displays the active tab’s Content Viewport, swapping visibility based on State Selector (tabs).” It links the navigation control with the content region.",
+    "category": "Navigation Systems",
+    "volume": 1
+  },
+  {
+    "term": "Affordance",
+    "definition": "A visual cue that suggests how a user should interact with a container. Raised shadows, underlines, color contrast, and cursor changes are affordances. In Structural Walkthrough, we describe them semantically: “Action Target Container with high‑contrast fill and rounded corners implying tappability.” This communicates the “skin” without specifying colors.",
+    "category": "Interaction & Affordance",
+    "volume": 1
+  },
+  {
+    "term": "Tap Target",
+    "definition": "The interactive area of an Action Target Container. It may be larger than the visible graphic to meet accessibility minimums. The walkthrough might note “Tap Target Container extends beyond Icon Container, ensuring a minimum 48pt touch area.” This surfaces UX considerations without straying into pixel specs.",
+    "category": "Interaction & Affordance",
+    "volume": 1
+  },
+  {
+    "term": "Focus State",
+    "definition": "A container state that indicates keyboard or screen‑reader focus. It is typically a visible outline or highlight. The walkthrough acknowledges it: “When focused, the Text Input Container displays a prominent border indicator.” This inclusion prompts developers to implement accessible focus management.",
+    "category": "Interaction & Affordance",
+    "volume": 1
+  },
+  {
+    "term": "Hover State",
+    "definition": "A temporary change in a container’s appearance when a pointer is over it. Usually a subtle background shift or scale transformation. The walkthrough may mention “Hover State: subtle fill change on Action Target Container.” This semantic note helps define the interaction model without triggering an implementation.",
+    "category": "Interaction & Affordance",
+    "volume": 1
+  },
+  {
+    "term": "Disabled State",
+    "definition": "A container that is visibly inactive and non‑interactive. It appears muted or grayed out. The walkthrough labels it “Disabled State Container – Action Target with reduced contrast, non‑tappable.” Recognizing disabled states in a blueprint is crucial for form logic and permission systems.",
+    "category": "Interaction & Affordance",
+    "volume": 1
+  },
+  {
+    "term": "Loading State",
+    "definition": "A temporary container that replaces content while data is being fetched. It can be a spinner, shimmer, or skeleton placeholders. The walkthrough says “Loading State Container: skeleton cards mimicking Card Grid, replaced by actual content upon data arrival.” This treats loading as a first‑class structural state.",
+    "category": "Interaction & Affordance",
+    "volume": 1
+  },
+  {
+    "term": "Empty State Container",
+    "definition": "A container shown when there is no data to display. It often includes an illustration, message, and an action to add content. The walkthrough pattern: “Empty State Container centered in Content Viewport, containing Icon Container, Label Container, and Action Target (Create New).” It turns emptiness into a designed feature.",
+    "category": "Interaction & Affordance",
+    "volume": 1
+  },
+  {
+    "term": "Error State Container",
+    "definition": "A container that appears when a retrieval or submission fails. It displays an error message and a recovery action. The walkthrough: “Error State Container replacing Content Viewport, with Alert Icon Container, Error Label Container, and Retry Action Target.” This makes error handling a planned part of the structure.",
+    "category": "Interaction & Affordance",
+    "volume": 1
+  },
+  {
+    "term": "Success State",
+    "definition": "A temporary container confirming a completed action, such as a toast message or a checkmark animation. The walkthrough describes it as “Success State Container: Floating Layer at top of viewport, with Icon (checkmark) and Label, auto‑dismissing.” It signals a transient system feedback.",
+    "category": "Interaction & Affordance",
+    "volume": 1
+  },
+  {
+    "term": "Confirmation Dialog",
+    "definition": "A Modal Layer that asks the user to confirm or cancel a destructive action. It contains a message and two action targets. The walkthrough breakdown: “Confirmation Dialog Container (Modal Layer): central panel with Label Container, Cancel Action Target, and Destructive Action Target (Confirm).” This pattern ensures safety and clarity.",
+    "category": "Interaction & Affordance",
+    "volume": 1
+  },
+  {
+    "term": "State Indicator",
+    "definition": "A generic term for any container whose primary role is to reflect a system or user state. Active tabs, selected filters, online status dots, and loading spinners all fall under this. Walkthroughs name the specific type, e.g., “State Indicator Container (selected tab) has a prominent underline.” This separates presentation from control.",
+    "category": "State & Feedback",
+    "volume": 1
+  },
+  {
+    "term": "Toggle Container",
+    "definition": "A binary control that switches between two states, like a checkbox or switch. It has an internal state indicator (the knob or check). The walkthrough: “Toggle Container: horizontal row of Icon Container (check) and Label Container, with toggled state showing filled check.” This clearly defines the on/off behavior.",
+    "category": "State & Feedback",
+    "volume": 1
+  },
+  {
+    "term": "Radio Button Group",
+    "definition": "A State Selector container where only one option can be active at a time. It typically contains several Radio Button Containers. The walkthrough says “Radio Button Group Container: vertical stack of Radio Button Containers, each with circular Icon and Label; selected state indicated by filled circle.” The exclusivity is a structural rule.",
+    "category": "State & Feedback",
+    "volume": 1
+  },
+  {
+    "term": "Segmented Control",
+    "definition": "A horizontal bar of equally‑sized segments where one is highlighted. Similar to tabs but often used for filtering within a context. The walkthrough: “Segmented Control Container: row of 3 Segment Action Targets, with active segment indicated by high‑contrast fill.” It’s a compact State Selector.",
+    "category": "State & Feedback",
+    "volume": 1
+  },
+  {
+    "term": "Slider Container",
+    "definition": "A track with a draggable thumb that selects a value from a range. The walkthrough identifies “Slider Container: horizontal Track Container with Thumb Container, position reflects numeric value.” This abstraction works for volume sliders, price range filters, and brightness controls.",
+    "category": "State & Feedback",
+    "volume": 1
+  },
+  {
+    "term": "Chip Container",
+    "definition": "A compact, rounded block representing a filter, tag, or selected item. Often contains a label and a dismiss icon. The walkthrough: “Chip Container: small rounded block with Label Container and optional Dismiss Icon Container, used for multi‑select filters.” Chips are common in search and filter UIs.",
+    "category": "State & Feedback",
+    "volume": 1
+  },
+  {
+    "term": "Toast Container",
+    "definition": "A transient Floating Layer that appears at the top or bottom of the screen with a brief message. It disappears after a short time. The walkthrough pattern: “Toast Container: floating at bottom edge, containing Icon and Label, auto‑dismisses after 3 seconds.” This implies a notification system.",
+    "category": "State & Feedback",
+    "volume": 1
+  },
+  {
+    "term": "Tooltip Container",
+    "definition": "A small Floating Layer that appears on hover or tap, providing additional information. It is absolutely positioned near the trigger. Walkthrough: “Tooltip Container: small rectangle with Label, anchored above the Trigger Container, reveals on hover.” This behavior is encapsulated in the naming.",
+    "category": "State & Feedback",
+    "volume": 1
+  },
+  {
+    "term": "Badge Counter",
+    "definition": "A specific type of badge that displays a numeric count, often near an icon or tab. It indicates pending items. The walkthrough says “Badge Counter Container: small circle with number, overlaying top‑right corner of Messages Icon Container.” The structural relationship is explicit.",
+    "category": "State & Feedback",
+    "volume": 1
+  },
+  {
+    "term": "Status Dot",
+    "definition": "A tiny, often colored circle that indicates presence or state (online, offline, warning). It usually floats on the edge of an Avatar or icon. Walkthrough: “Status Dot Container: micro circle overlaying bottom‑right of Avatar Container, indicating online status.” This tiny element is a powerful state communicator.",
+    "category": "State & Feedback",
+    "volume": 1
+  },
+  {
+    "term": "Card Container",
+    "definition": "A self‑contained rectangle that groups related content and actions—images, titles, text, buttons. Cards are the primary unit of many list and grid interfaces. The walkthrough dissects a card: “Card Container: vertical stack of Thumbnail Container, Title Container, Body Text Container, and Interaction Cluster.” Cards are reusable templates.",
+    "category": "Patterns & Reusable Structures",
+    "volume": 1
+  },
+  {
+    "term": "List Container",
+    "definition": "A vertical stack of repeating item containers, often with dividers. Lists display collections of similar data. The walkthrough: “List Container: vertical stack of List Item Containers, each containing Avatar Container, Title/Subtitle Stack, and Action Target.” Lists map directly to data arrays.",
+    "category": "Patterns & Reusable Structures",
+    "volume": 1
+  },
+  {
+    "term": "Table Container",
+    "definition": "A structured grid of rows and columns for data comparison. Header row, data rows, sorting controls. The walkthrough: “Table Container: Header Row with Label Containers, followed by multiple Data Rows with Cell Containers. Columns align vertically.” Tables are complex but highly structured.",
+    "category": "Patterns & Reusable Structures",
+    "volume": 1
+  },
+  {
+    "term": "Hero Container",
+    "definition": "A large, prominent banner at the top of a landing page or screen, typically with a background image, headline, and call‑to‑action. Walkthrough: “Hero Section: full‑width container with Background Image Container, Text Overlay Stack (Title Container, Subtitle Container, Action Target).” It sets the emotional tone.",
+    "category": "Patterns & Reusable Structures",
+    "volume": 1
+  },
+  {
+    "term": "Media Container",
+    "definition": "A generic container for images, videos, or illustrations. It may have aspect ratio constraints. Walkthrough: “Media Container (product shot): wide aspect ratio, filling parent width, with an overlay of promotional badges.” Media containers are content‑first and often span full width.",
+    "category": "Patterns & Reusable Structures",
+    "volume": 1
+  },
+  {
+    "term": "Call‑to‑Action (CTA) Container",
+    "definition": "A prominent, usually high‑contrast Action Target that drives the primary user goal. It stands alone or within a Hero. Walkthrough: “CTA Container: dominant Action Target with bold label, centered below Hero Title, triggers sign‑up flow.” Its structural prominence matches its business importance.",
+    "category": "Patterns & Reusable Structures",
+    "volume": 1
+  },
+  {
+    "term": "Dashboard Widget",
+    "definition": "A card‑like container on a dashboard showing a specific KPI, chart, or metric. Typically part of a grid. Walkthrough: “Dashboard Widget Container: small card with Icon, KPI Label, and Sparkline Container; part of a 4‑column grid.” Dashboards aggregate many widgets.",
+    "category": "Patterns & Reusable Structures",
+    "volume": 1
+  },
+  {
+    "term": "Onboarding Flow Container",
+    "definition": "A sequence of full‑screen or card‑based steps that introduce the app. Usually contains a Stepper, illustration, title, and CTA. Walkthrough: “Onboarding Flow Container: horizontal swipeable Behavioral Grouping of Onboarding Step Containers, each with Media, Title, and Action Target.”",
+    "category": "Patterns & Reusable Structures",
+    "volume": 1
+  },
+  {
+    "term": "Login Form Container",
+    "definition": "A centered panel containing input fields for credentials and a submit button. Typically minimal. Walkthrough: “Login Form Container: vertical stack inside a centered Modal or Section, with Logo Container, Email Text Input, Password Text Input, and Submit Action Target.”",
+    "category": "Patterns & Reusable Structures",
+    "volume": 1
+  },
+  {
+    "term": "Filter Bar Container",
+    "definition": "A horizontal row of Chip Containers or Dropdown Menus that refine a list. Often sits between navigation and the Content Viewport. Walkthrough: “Filter Bar Container: horizontal scroll of Filter Chip Containers and a Sort Dropdown Trigger.” It’s a Contextual Toolbar pattern.",
+    "category": "Patterns & Reusable Structures",
+    "volume": 1
+  },
+  {
+    "term": "Component Tree",
+    "definition": "The hierarchical representation of containers as reusable UI components in code. A Structural Walkthrough directly maps to a component tree: each named container becomes a component, and groups become layout components. This term bridges the blueprint and the codebase.",
+    "category": "System & Ecosystem",
+    "volume": 1
+  },
+  {
+    "term": "Prop",
+    "definition": "In a component architecture, a prop is a parameter that changes a container’s content or behavior. Walkthroughs indirectly define props by describing variations: “Avatar Container takes an image source and size variant (small, large).” The semantic container naming implies a prop interface.",
+    "category": "System & Ecosystem",
+    "volume": 1
+  },
+  {
+    "term": "Design Token",
+    "definition": "An abstracted style value like color, spacing, or typography scale. In walkthroughs, we reference tokens indirectly: “primary action fill,” “spacing (comfortable),” “title size (prominent).” This keeps the blueprint token‑aware without hardcoding values, enabling theme switching.",
+    "category": "System & Ecosystem",
+    "volume": 1
+  },
+  {
+    "term": "State Persistence",
+    "definition": "The concept that a container’s state survives navigation or reload. Walkthroughs note it: “Search Text Input Container value persists across screen transitions within the search flow.” Recognizing persistence is key for system relationships.",
+    "category": "System & Ecosystem",
+    "volume": 1
+  },
+  {
+    "term": "Cross‑Screen Continuity",
+    "definition": "The seamless transition of containers or data between screens. For example, a hero image that scales into a detail screen header. The walkthrough highlights: “Product Thumbnail Container animates into Detail Media Container, preserving image resource.” This creates a unified user experience.",
+    "category": "System & Ecosystem",
+    "volume": 1
+  },
+  {
+    "term": "Operational Pipeline",
+    "definition": "A multi‑screen process, like checkout or onboarding, where each screen is a step. The walkthrough places a screen in its pipeline: “This is the Shipping step (2 of 3) in the Checkout Operational Pipeline, with Progress Indicator Container reflecting overall progress.”",
+    "category": "System & Ecosystem",
+    "volume": 1
+  },
+  {
+    "term": "Navigation Stack",
+    "definition": "The history of screens visited, enabling back navigation. Structural walkthroughs reference it: “Pressing Back Button Container pops the top of the Navigation Stack, returning to the Product List Screen.” This acknowledges the app’s routing structure.",
+    "category": "System & Ecosystem",
+    "volume": 1
+  },
+  {
+    "term": "Modal Context",
+    "definition": "The environment where a modal layer is triggered and dismissed. The walkthrough specifies: “Modal Layer (Add to Cart) appears from the bottom, with Overlay Container, and returns to the Product Detail Screen on dismiss.” Modal context ensures proper lifecycle handling.",
+    "category": "System & Ecosystem",
+    "volume": 1
+  },
+  {
+    "term": "Responsive Breakpoint",
+    "definition": "A conceptual threshold where a layout changes from one structural arrangement to another. Walkthroughs mention: “At narrow viewports, the Sidebar collapses into a Navigation Drawer; at wide, it is a fixed rail.” This ties structure to viewport size.",
+    "category": "System & Ecosystem",
+    "volume": 1
+  },
+  {
+    "term": "Layout Region",
+    "definition": "A named area in a CSS Grid or flex layout that corresponds to a container. In walkthroughs, we might label: “Header Region”, “Sidebar Region”, “Content Region”. This high‑level partitioning helps plan responsive reflow.",
+    "category": "System & Ecosystem",
+    "volume": 1
+  },
+  {
+    "term": "Semantic Container",
+    "definition": "A container whose name and role convey meaning even without visuals. All Structural Walkthrough containers aim to be semantic. A “Shopping Cart Icon Container” is semantic; “Div 12” is not. The walkthrough practice forces semantic thinking.",
+    "category": "Advanced & Meta Terms",
+    "volume": 1
+  },
+  {
+    "term": "Visual Weight",
+    "definition": "The perceived heaviness of a container based on size, contrast, and density. Walkthroughs use it for visual prioritization: “The Hero Title Container carries the highest visual weight, drawing the eye first.” No numbers needed.",
+    "category": "Advanced & Meta Terms",
+    "volume": 1
+  },
+  {
+    "term": "Reading Rhythm",
+    "definition": "The natural eye path from top to bottom and left to right, influenced by container arrangement. The walkthrough narrates it: “Reading rhythm: Global Navigation → Hero Text → Primary CTA → Card Grid.” This tests whether the layout guides attention correctly.",
+    "category": "Advanced & Meta Terms",
+    "volume": 1
+  },
+  {
+    "term": "Information Scent",
+    "definition": "A container’s ability to communicate what will happen if interacted with. Clear labels and affordances provide strong scent. Walkthrough: “The ‘Get Started’ Action Target Container has high information scent due to its dominant position and actionable label.”",
+    "category": "Advanced & Meta Terms",
+    "volume": 1
+  },
+  {
+    "term": "Progressive Disclosure",
+    "definition": "A technique where secondary information is hidden behind a “Show more” trigger to reduce cognitive load. The walkthrough identifies a “Progressive Disclosure Container: visible Summary Row, hidden Detail Stack, toggled by Expand Trigger.”",
+    "category": "Advanced & Meta Terms",
+    "volume": 1
+  },
+  {
+    "term": "Skeleton Screen",
+    "definition": "A placeholder container layout used during loading. It mimics the final structure with gray, shape‑like blocks. Walkthrough: “Skeleton Screen Container: replicates Card Grid with shimmer animation, replaced by actual Card Containers after data fetch.” It’s a specific loading state.",
+    "category": "Advanced & Meta Terms",
+    "volume": 1
+  },
+  {
+    "term": "Div Soup",
+    "definition": "A pejorative for overly nested, non‑semantic containers that bloat the DOM. The entire Structural Walkthrough methodology aims to eliminate div soup by naming only necessary containers and collapsing redundant groups.",
+    "category": "Advanced & Meta Terms",
+    "volume": 1
+  },
+  {
+    "term": "Component‑Driven Design",
+    "definition": "An approach where the UI is built from a library of reusable container‑components. Structural Walkthrough is the verbal specification phase of component‑driven design, defining the component API through naming and relationships.",
+    "category": "Advanced & Meta Terms",
+    "volume": 1
+  },
+  {
+    "term": "Design‑Engineering Handoff",
+    "definition": "The point where visual design meets code. A proper Structural Walkthrough acts as the handoff document—readable by designers and engineers alike—ensuring no translation loss between Figma and the final component tree.",
+    "category": "Advanced & Meta Terms",
+    "volume": 1
+  },
+  {
+    "term": "Walkthrough Artifact",
+    "definition": "The final output of a Structural Walkthrough session: a complete, structured text document that describes every container, its relationships, states, and system context. It is a living specification that can be revised as the interface evolves, and it directly feeds AI coding assistants.",
+    "category": "Advanced & Meta Terms",
+    "volume": 1
+  },
+  {
+    "term": "Divider Container",
+    "definition": "A dedicated container whose sole purpose is to visually separate adjacent content blocks. It is often a thin line but can be a styled space. In a walkthrough: “Divider Container: horizontal separator between List Items, subtle low‑contrast stroke.” Divider Containers reduce cognitive blending between unrelated items and provide visual rhythm.",
+    "category": "Micro‑Containers & Detail Elements",
+    "volume": 2
+  },
+  {
+    "term": "Spacer Container",
+    "definition": "A container that holds no content and exists purely to create intentional whitespace. Unlike a flexible space that distributes remaining area, a spacer has a fixed proportional role. The walkthrough might say: “Spacer Container sits below Hero Title, creating breathing room before the Subtitle Container.” This preserves spatial intent without exact measurements.",
+    "category": "Micro‑Containers & Detail Elements",
+    "volume": 2
+  },
+  {
+    "term": "Keyline Container",
+    "definition": "A fine, often colored line that reinforces grouping or alignment, common in complex forms and tables. It is more decorative than a Separator. Walkthrough: “Keyline Container: thin vertical line inside the Form Group, aligning Label Containers to Inputs.” Keylines subtly guide alignment without shouting.",
+    "category": "Micro‑Containers & Detail Elements",
+    "volume": 2
+  },
+  {
+    "term": "Shadow Container",
+    "definition": "A container responsible for projecting a drop shadow or elevation effect, typically around a Card or Modal. The walkthrough describes the effect semantically: “Card Container sits inside Shadow Container, giving it a raised appearance implying interactivity.” This separates visual depth from the content structure.",
+    "category": "Micro‑Containers & Detail Elements",
+    "volume": 2
+  },
+  {
+    "term": "Glow Container",
+    "definition": "A container that emits a soft, colored blur around its child, often used for focus states or glowing indicators. Walkthrough: “Focus Glow Container surrounds the active Text Input Container, signaling keyboard focus.” It communicates state through periphery illumination.",
+    "category": "Micro‑Containers & Detail Elements",
+    "volume": 2
+  },
+  {
+    "term": "Pulse Container",
+    "definition": "A container that animates a subtle scale or opacity loop to draw attention. It is used for loading dots or attention‑seeking icons. “Pulse Container: three‑dot Indicator Container cycling opacity to convey ‘waiting’ state.” Animation is implied by the name.",
+    "category": "Micro‑Containers & Detail Elements",
+    "volume": 2
+  },
+  {
+    "term": "Gradient Overlay Container",
+    "definition": "A container that holds a gradient fill, usually semi‑transparent, placed over an image to improve text readability. Walkthrough: “Gradient Overlay Container sits above the Hero Media Container, darkening the bottom to make Title Container legible.” This pattern ensures contrast without altering the image.",
+    "category": "Micro‑Containers & Detail Elements",
+    "volume": 2
+  },
+  {
+    "term": "Mask Container",
+    "definition": "A container that clips its child to a specific shape—circle, rounded rectangle, or custom SVG path. Avatars often use a mask. “Mask Container (circle) clips the Profile Image Container to a round frame.” It abstracts CSS `clip‑path` or `border‑radius` into structural language.",
+    "category": "Micro‑Containers & Detail Elements",
+    "volume": 2
+  },
+  {
+    "term": "Ratio Box",
+    "definition": "A container that enforces a proportional relationship between width and height, independent of content. The walkthrough notes: “Ratio Box (4:3) holds the Video Embed Container, preventing layout shift during loading.” It addresses cumulative layout shift (CLS) at the blueprint level.",
+    "category": "Micro‑Containers & Detail Elements",
+    "volume": 2
+  },
+  {
+    "term": "Skeleton Placeholder",
+    "definition": "A sub‑container inside a Loading Skeleton that mimics the shape of a real content block—text lines, circles, rectangles. Walkthrough: “Skeleton Placeholder (text line) inside Card Skeleton Container, width 80% of parent.” It prepares the UI for seamless data loading without actual dimensions.",
+    "category": "Micro‑Containers & Detail Elements",
+    "volume": 2
+  },
+  {
+    "term": "Swipe Action Container",
+    "definition": "A container that reveals hidden action targets when the user swipes horizontally, common in list items. Walkthrough: “Swipe Action Container reveals Delete and Archive Action Targets behind the List Item, triggered by a leftward drag.” It defines gesture‑based interaction at the structural level.",
+    "category": "Interactive Micro‑Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Long‑Press Context Menu",
+    "definition": "A Floating Layer that appears after the user holds a touch on an element. It contains a stack of Menu Item Containers. Walkthrough: “Long‑Press Context Menu Container: absolute, appears near touched Card, with Copy, Share, and Delete Action Targets.” This prevents clutter until needed.",
+    "category": "Interactive Micro‑Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Pull‑to‑Refresh Container",
+    "definition": "A container at the top of a Scroll Container that triggers a reload when the user drags down beyond the edge. Walkthrough: “Pull‑to‑Refresh Container: hidden above Content Viewport, reveals a spinner and label upon overscroll.” It’s a gesture‑driven system interaction.",
+    "category": "Interactive Micro‑Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Drag Handle Container",
+    "definition": "A small textured or dotted indicator that signals a container can be dragged to reorder or resize. Often seen in list reordering or bottom sheets. Walkthrough: “Drag Handle Container: tiny bar at the top of the Bottom Sheet, indicating it can be swiped to dismiss or expand.”",
+    "category": "Interactive Micro‑Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Resize Edge Container",
+    "definition": "A thin container at the boundary of a panel that can be dragged to resize the adjacent panes. Used in split‑view interfaces. Walkthrough: “Resize Edge Container: vertical line between Sidebar and Content Viewport, with a hover state indicating draggability.”",
+    "category": "Interactive Micro‑Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Marquee Container",
+    "definition": "A horizontally scrolling text container for announcements or tickers. It moves content automatically. Walkthrough: “Marquee Container: overflow‑hidden with scrolling Label Container, cycling important updates.” It’s a content‑driven animation container.",
+    "category": "Interactive Micro‑Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Infinite Scroll Trigger",
+    "definition": "A hidden container at the bottom of a list that fires a load‑more action when it enters the viewport. Walkthrough: “Infinite Scroll Trigger Container: zero‑height sentinel, triggers data fetch when intersected by the scroll container.” It is an invisible behavioral container.",
+    "category": "Interactive Micro‑Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Skip Link Container",
+    "definition": "An off‑screen container that becomes visible on focus, allowing keyboard users to jump to main content. Walkthrough: “Skip Link Container: hidden until focused, then appears at top of viewport, providing an Action Target to skip Global Navigation.”",
+    "category": "Interactive Micro‑Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Focus Trap Container",
+    "definition": "A Modal Layer container that constrains keyboard focus within its boundaries, preventing focus from escaping to the background. Walkthrough: “Focus Trap Container: Modal Layer with tab‑cycling behavior; first and last focusable elements are wrapped.” It’s an accessibility‑critical structure.",
+    "category": "Interactive Micro‑Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Haptic Feedback Target",
+    "definition": "A container that, when interacted with, triggers a tactile vibration on supported devices. It’s not visually distinct but structurally annotated: “Haptic Feedback Target: Action Target (Like) with haptic confirmation on long‑press.” This ensures designers and developers align on sensory feedback.",
+    "category": "Interactive Micro‑Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Rich Text Container",
+    "definition": "A container that holds formatted text with multiple inline styles—bold, italic, links, lists. Walkthrough: “Rich Text Container: article body with mixed inline emphasis containers (Bold Span, Link Span), embedded within the Content Viewport.” It signals that the text is not a simple label.",
+    "category": "Content Display & Formatting",
+    "volume": 2
+  },
+  {
+    "term": "Code Block Container",
+    "definition": "A container for displaying code snippets, usually with a monospace font and a distinct background. Walkthrough: “Code Block Container: dark, rounded rectangle containing preformatted text with syntax highlighting spans.” It’s a specialized content container.",
+    "category": "Content Display & Formatting",
+    "volume": 2
+  },
+  {
+    "term": "Blockquote Container",
+    "definition": "A container that visually distinguishes quoted text, often with a left border or italic style. Walkthrough: “Blockquote Container: inset text block with a left Keyline Container and italic Label Container.” It denotes attributed external content.",
+    "category": "Content Display & Formatting",
+    "volume": 2
+  },
+  {
+    "term": "Figure Container",
+    "definition": "A container that pairs a Media Container with a Caption Container, forming a self‑contained illustrative unit. Walkthrough: “Figure Container: vertical stack of Image Container and Caption Label Container, referenced in the article.” This enhances document semantics.",
+    "category": "Content Display & Formatting",
+    "volume": 2
+  },
+  {
+    "term": "Table Cell Container",
+    "definition": "The smallest unit inside a Table Container, holding data or a control. Walkthrough: “Table Cell Container: aligned left, containing either a Label or a State Indicator (status dot).” Cells are the atomic elements of tabular data.",
+    "category": "Content Display & Formatting",
+    "volume": 2
+  },
+  {
+    "term": "Data Badge",
+    "definition": "A label container that displays a dynamic data point in a compact colored shape—like a sale price or stock status. Walkthrough: “Data Badge Container: small rounded rectangle overlaying Thumbnail, showing discount percentage.” It combines data and skin semantically.",
+    "category": "Content Display & Formatting",
+    "volume": 2
+  },
+  {
+    "term": "Timeline Container",
+    "definition": "A vertical structure where event nodes are connected by a line, often used in activity feeds or order tracking. Walkthrough: “Timeline Container: vertical stack of Timeline Event Containers, each with an Icon (node), Connector Line, and Content Card.” It visualizes sequence.",
+    "category": "Content Display & Formatting",
+    "volume": 2
+  },
+  {
+    "term": "Calendar Grid Container",
+    "definition": "A 7‑column grid displaying days of a month, with each cell as a Day Container that can contain event dots. Walkthrough: “Calendar Grid Container: 7‑column grid of Day Containers, with current day highlighted by a State Indicator.” This complex component is pattern‑recognized.",
+    "category": "Content Display & Formatting",
+    "volume": 2
+  },
+  {
+    "term": "Chart Container",
+    "definition": "A container that renders a graphical representation of data—bar, line, pie, or donut. Walkthrough: “Chart Container: Canvas or SVG placeholder with Legend Container and optional Tooltip Container on hover.” It’s a black‑box content container that takes data props.",
+    "category": "Content Display & Formatting",
+    "volume": 2
+  },
+  {
+    "term": "Map Container",
+    "definition": "A full‑width or embedded container that displays an interactive map, with optional Pin Containers. Walkthrough: “Map Container: fixed‑height interactive canvas, with floating Pin Containers indicating locations.” It acknowledges third‑party embeds structurally.",
+    "category": "Content Display & Formatting",
+    "volume": 2
+  },
+  {
+    "term": "Form Group Container",
+    "definition": "A vertical or horizontal stack that bundles a Label, Input, and Helper Text together. Walkthrough: “Form Group Container: vertical stack of Label Container, Text Input Container, and Helper Text Label.” It’s the standard reusable pattern for form fields.",
+    "category": "Form & Input Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Input Add‑on Container",
+    "definition": "A container attached to the left or right of a Text Input, holding an icon or text (e.g., currency symbol, search icon). Walkthrough: “Input Add‑on Container (left): Icon Container (search) inside a subtle box, visually fused with the Text Input.” It creates a composite input.",
+    "category": "Form & Input Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Validation Message Container",
+    "definition": "A small label container that appears below an input to show error or success text, often colored red or green. Walkthrough: “Validation Message Container: below the Text Input, displaying error label when state is invalid.” It is a conditional state container.",
+    "category": "Form & Input Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Password Visibility Toggle",
+    "definition": "An Action Target Container inside or adjacent to a password input that reveals the masked text. Walkthrough: “Password Visibility Toggle Container: Icon (eye) overlaying right side of Password Input, toggling between masked and clear text.” It’s a micro‑interaction inside a form.",
+    "category": "Form & Input Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Search Bar Container",
+    "definition": "A composite container combining a Search Input, Icon (magnifying glass), and optional Cancel Button. Walkthrough: “Search Bar Container: rounded horizontal Row of Icon (search), Text Input, and Clear Action Target.” It’s a recognized top‑of‑list pattern.",
+    "category": "Form & Input Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Dropdown Select Container",
+    "definition": "A container that displays a selected value and reveals a Dropdown Menu of options when tapped. Walkthrough: “Dropdown Select Container: row with Label and Chevron Icon; tapping opens Overlay List Container.” It’s a compact state selector.",
+    "category": "Form & Input Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Multi‑Select Container",
+    "definition": "A container where multiple Chip Containers represent selected items, often with a text input to add more. Walkthrough: “Multi‑Select Container: horizontal wrap of Chip Containers plus a trailing Text Input; each chip has a Dismiss Icon.” It shows complex data entry.",
+    "category": "Form & Input Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Date Picker Container",
+    "definition": "A Modal or Popover container that displays a Calendar Grid for selecting a date. Walkthrough: “Date Picker Container: Modal Layer containing Calendar Grid and Action Targets (Today, Cancel, Apply).” It’s a dedicated input widget.",
+    "category": "Form & Input Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Slider with Value Label",
+    "definition": "A Slider Container paired with a numeric Label that shows the current value dynamically. Walkthrough: “Slider with Value Label Container: Slider Track and Thumb, with a floating Label above the thumb updating in real time.” It merges control and feedback.",
+    "category": "Form & Input Patterns",
+    "volume": 2
+  },
+  {
+    "term": "File Upload Container",
+    "definition": "A drop‑zone container with an upload icon and prompt text, often with a preview thumbnail after selection. Walkthrough: “File Upload Container: dashed‑border rectangle with Icon (cloud upload) and Label; after selection, shows Thumbnail and file name.” It’s a complete input component.",
+    "category": "Form & Input Patterns",
+    "volume": 2
+  },
+  {
+    "term": "Nav Link Container",
+    "definition": "An individual text or icon link inside a navigation system. Walkthrough: “Nav Link Container: inline text block with hover underline; taps navigate to corresponding section.” It’s the atomic unit of navigation lists.",
+    "category": "Navigation & Wayfinding Details",
+    "volume": 2
+  },
+  {
+    "term": "Active Nav Indicator",
+    "definition": "A small container, often a bar or highlight, that marks the currently active navigation link. Walkthrough: “Active Nav Indicator Container: thick bottom border bar on the selected Tab Container.” It’s a state‑driven decorative element.",
+    "category": "Navigation & Wayfinding Details",
+    "volume": 2
+  },
+  {
+    "term": "Section Header Container",
+    "definition": "A label or heading container that introduces a content group. Often found in lists and settings. Walkthrough: “Section Header Container: uppercase small label with subtle background, above a group of list items.” It provides categorical structure.",
+    "category": "Navigation & Wayfinding Details",
+    "volume": 2
+  },
+  {
+    "term": "Footer Navigation Container",
+    "definition": "A secondary navigation block at the bottom of a page, often with multiple column stacks of links. Walkthrough: “Footer Navigation Container: 3‑column grid of Nav Link Stacks, each with a Section Header Label.” It’s a dense, repeatable pattern.",
+    "category": "Navigation & Wayfinding Details",
+    "volume": 2
+  },
+  {
+    "term": "Back‑to‑Top Container",
+    "definition": "A Floating Action container that scrolls the Content Viewport to the top when tapped. Walkthrough: “Back‑to‑Top Container: round button with up‑arrow Icon, floating bottom‑right, appears after scrolling down a threshold.” It’s an affordance for long pages.",
+    "category": "Navigation & Wayfinding Details",
+    "volume": 2
+  },
+  {
+    "term": "Sticky Header Container",
+    "definition": "A header that starts in normal flow but becomes fixed at the top of the viewport when the user scrolls past it. Walkthrough: “Sticky Header Container: becomes fixed after Content Viewport scrolls beyond its original position, containing Global Navigation.”",
+    "category": "Navigation & Wayfinding Details",
+    "volume": 2
+  },
+  {
+    "term": "Collapsible Header",
+    "definition": "A large header that shrinks or hides part of itself on scroll, leaving only a compact navigation. Walkthrough: “Collapsible Header: Hero Section reduces to a slim Global Navigation on scroll, with Title Container fading out.” It’s an advanced responsive behavior.",
+    "category": "Navigation & Wayfinding Details",
+    "volume": 2
+  },
+  {
+    "term": "Mega Menu Container",
+    "definition": "A large dropdown panel from Global Navigation that shows multiple columns of links and featured content. Walkthrough: “Mega Menu Container: absolute full‑width dropdown with 4 Link Columns and a Featured Card.” It accommodates complex site architectures.",
+    "category": "Navigation & Wayfinding Details",
+    "volume": 2
+  },
+  {
+    "term": "Breadcrumb Current Page",
+    "definition": "The final, non‑linked label in a breadcrumb trail, indicating the current screen. Walkthrough: “Breadcrumb Current Page Label: last item in Breadcrumb Container, styled as plain text without underline, reflecting current location.” It’s a state indicator.",
+    "category": "Navigation & Wayfinding Details",
+    "volume": 2
+  },
+  {
+    "term": "Off‑Canvas Filter Panel",
+    "definition": "A side panel that slides over the Content Viewport, containing filter controls. Walkthrough: “Off‑Canvas Filter Panel Container: slides from right, with Filter Form Groups and Apply/Clear Action Targets.” It’s a common mobile‑first pattern.",
+    "category": "Navigation & Wayfinding Details",
+    "volume": 2
+  },
+  {
+    "term": "Animated Transition Container",
+    "definition": "A wrapper that orchestrates an animation when its child is mounted or unmounted—fade, slide, scale. Walkthrough: “Animated Transition Container: wraps the Modal Layer, applying fade‑in on appearance.” It separates animation logic from content.",
+    "category": "Behavioral & Animation Containers",
+    "volume": 2
+  },
+  {
+    "term": "Shared Element Container",
+    "definition": "A container that persists visually between two screens, animating its position and size during navigation. Walkthrough: “Shared Element Container: product image that scales from Thumbnail in List to full‑width in Detail during screen transition.” This requires cross‑screen coordination.",
+    "category": "Behavioral & Animation Containers",
+    "volume": 2
+  },
+  {
+    "term": "Parallax Container",
+    "definition": "A container where background media scrolls at a different rate than the foreground, creating depth. Walkthrough: “Parallax Container: Background Image moves slower than the Content Stack, anchored to scroll position.” It’s a decorative behavioral container.",
+    "category": "Behavioral & Animation Containers",
+    "volume": 2
+  },
+  {
+    "term": "Shimmer Container",
+    "definition": "A placeholder container with a moving gradient shine, indicating loading for blocks of text or images. Walkthrough: “Shimmer Container: gray block with animated gradient sweep, replicating the shape of the final content.” It’s a specific loading animation.",
+    "category": "Behavioral & Animation Containers",
+    "volume": 2
+  },
+  {
+    "term": "Ripple Container",
+    "definition": "A container that shows a circular ink‑like animation on tap, originating from the touch point. Walkthrough: “Ripple Container: overlays Action Target, spawning a circle that expands and fades on press.” This is a material‑design‑rooted feedback pattern.",
+    "category": "Behavioral & Animation Containers",
+    "volume": 2
+  },
+  {
+    "term": "Snackbar Container",
+    "definition": "A transient message bar that appears at the bottom of the screen, often with an action button, and auto‑dismisses. Walkthrough: “Snackbar Container: bottom‑anchored Floating Layer with Label and optional Action Target (Undo), slides up and fades out.”",
+    "category": "Behavioral & Animation Containers",
+    "volume": 2
+  },
+  {
+    "term": "Bottom Sheet Container",
+    "definition": "A panel that slides up from the bottom of the viewport, covering part of the screen, with a Drag Handle and scrollable content. Walkthrough: “Bottom Sheet Container: layered above Overlay, with Drag Handle, Title, and scrollable Content Stack.” It’s a modal alternative.",
+    "category": "Behavioral & Animation Containers",
+    "volume": 2
+  },
+  {
+    "term": "Expandable Panel",
+    "definition": "A container with a header that, when tapped, reveals a hidden content area with a smooth height animation. Walkthrough: “Expandable Panel: Stack containing Summary Row (Trigger) and Detail Stack (initially collapsed, animated open).” It’s the core of accordions.",
+    "category": "Behavioral & Animation Containers",
+    "volume": 2
+  },
+  {
+    "term": "Lottie Container",
+    "definition": "A container that plays a vector animation using a Lottie JSON file. Walkthrough: “Lottie Container: holds a looping illustration animation, used for empty states or success confirmations.” It defines a rich media type.",
+    "category": "Behavioral & Animation Containers",
+    "volume": 2
+  },
+  {
+    "term": "Skeleton Tree",
+    "definition": "A multi‑level skeleton structure that mimics a nested list or comment thread. Walkthrough: “Skeleton Tree Container: nested Skeleton Placeholders with indentation, giving the shape of a comment hierarchy during loading.” It maintains perceived structure.",
+    "category": "Behavioral & Animation Containers",
+    "volume": 2
+  },
+  {
+    "term": "Responsive Grid Container",
+    "definition": "A grid that changes column count based on available width without explicit breakpoints. Walkthrough: “Responsive Grid Container: auto‑fit columns of Card Containers, minimum cell width ensures reflow.” It abstracts CSS Grid `auto‑fit`.",
+    "category": "Responsive & Multi‑Viewport",
+    "volume": 2
+  },
+  {
+    "term": "Priority+ Navigation",
+    "definition": "A Global Navigation pattern where items overflow into a “More” Dropdown when space is limited. Walkthrough: “Priority+ Navigation Container: visible Nav Links as allowed by width, overflow placed in a More Dropdown Trigger.” It handles variable content length.",
+    "category": "Responsive & Multi‑Viewport",
+    "volume": 2
+  },
+  {
+    "term": "Off‑Canvas Push Container",
+    "definition": "A drawer that pushes the Content Viewport aside instead of overlaying it. Walkthrough: “Off‑Canvas Push Container: when open, shifts the Content Viewport rightwards, revealing the Navigation Drawer Container.” It’s a spatial navigation model.",
+    "category": "Responsive & Multi‑Viewport",
+    "volume": 2
+  },
+  {
+    "term": "Stack to Grid Container",
+    "definition": "A container that arranges children in a vertical stack on narrow viewports and switches to a horizontal grid on wider ones. Walkthrough: “Stack to Grid Container: single column on mobile, 3‑column grid on tablet and up.” It’s a responsive layout primitive.",
+    "category": "Responsive & Multi‑Viewport",
+    "volume": 2
+  },
+  {
+    "term": "Hide/Show Container",
+    "definition": "A container that conditionally renders based on viewport size—a sidebar that only appears on desktop. Walkthrough: “Hide/Show Container: Sidebar visible on wide viewports, completely removed on narrow.” It’s a visibility breakpoint pattern.",
+    "category": "Responsive & Multi‑Viewport",
+    "volume": 2
+  },
+  {
+    "term": "Scroll Snap Container",
+    "definition": "A horizontal or vertical scroll container where each child snaps into alignment, creating a paginated feel. Walkthrough: “Scroll Snap Container: Carousel with Card Containers that snap to start edge on scroll end.” It’s a declarative scroll behavior.",
+    "category": "Responsive & Multi‑Viewport",
+    "volume": 2
+  },
+  {
+    "term": "Viewport‑Aware Container",
+    "definition": "A container that changes its content or layout based on whether it is within the visible viewport. Used for lazy loading or animation triggers. Walkthrough: “Viewport‑Aware Container: Image Container loads only when scrolled into view.” It ties visibility to behavior.",
+    "category": "Responsive & Multi‑Viewport",
+    "volume": 2
+  },
+  {
+    "term": "Orientation Lock Container",
+    "definition": "A container that prompts the user to rotate their device for an optimal experience, often used for videos or games. Walkthrough: “Orientation Lock Container: overlay with Rotate Device Icon and Label, shown when in portrait mode.”",
+    "category": "Responsive & Multi‑Viewport",
+    "volume": 2
+  },
+  {
+    "term": "Device Frame Container",
+    "definition": "A decorative container that wraps the UI to look like a physical device (phone bezel) in a presentation. Walkthrough: “Device Frame Container: surrounds the Global Viewport with a mock device shell, adding notch and home indicator.” It’s a presentation layer.",
+    "category": "Responsive & Multi‑Viewport",
+    "volume": 2
+  },
+  {
+    "term": "Print Styles Container",
+    "definition": "A hidden container that defines the layout when printed, simplifying navigation and hiding interactive elements. Walkthrough: “Print Styles Container: activated during print, showing logo and content only, hiding Global Navigation and Footer.”",
+    "category": "Responsive & Multi‑Viewport",
+    "volume": 2
+  },
+  {
+    "term": "Native Share Container",
+    "definition": "A container that triggers the operating system’s share sheet, containing a list of target apps. Walkthrough: “Native Share Container: Action Target (Share) that invokes the OS share dialog with dynamic app list.” It’s a bridge to native functionality.",
+    "category": "Platform & Integration",
+    "volume": 2
+  },
+  {
+    "term": "Push Notification Prompt",
+    "definition": "A Modal or Inline container requesting permission to send notifications. Walkthrough: “Push Notification Prompt Container: system‑styled alert with Allow and Deny Action Targets.” It must follow platform guidelines.",
+    "category": "Platform & Integration",
+    "volume": 2
+  },
+  {
+    "term": "Biometric Auth Container",
+    "definition": "A container that prompts for fingerprint or face recognition, typically a system‑overlay. Walkthrough: “Biometric Auth Container: system‑modal with fingerprint icon and cancel option, triggered before sensitive actions.”",
+    "category": "Platform & Integration",
+    "volume": 2
+  },
+  {
+    "term": "Deep Link Banner",
+    "definition": "A banner container at the top of the screen prompting the user to open the content in the native app. Walkthrough: “Deep Link Banner Container: fixed top strip with App Icon, Label, and Open Action Target.” It bridges web and native.",
+    "category": "Platform & Integration",
+    "volume": 2
+  },
+  {
+    "term": "Wallet Pass Container",
+    "definition": "A container displaying a boarding pass, coupon, or ticket in a standardized wallet format. Walkthrough: “Wallet Pass Container: barcode area, event details, and time labels, with an Add to Wallet Action Target.”",
+    "category": "Platform & Integration",
+    "volume": 2
+  },
+  {
+    "term": "AR View Container",
+    "definition": "A viewport container that overlays the camera feed for augmented reality experiences. Walkthrough: “AR View Container: full‑screen camera feed with floating Product Preview Container and Place Action Target.” It’s a specialized immersive container.",
+    "category": "Platform & Integration",
+    "volume": 2
+  },
+  {
+    "term": "Voice Input Container",
+    "definition": "A container that activates microphone input, usually a button with a waveform animation. Walkthrough: “Voice Input Container: Action Target with microphone Icon; when active, shows a pulsing audio waveform indicator.”",
+    "category": "Platform & Integration",
+    "volume": 2
+  },
+  {
+    "term": "Chat Interface Container",
+    "definition": "A recognizable pattern: a scrollable message list with a fixed input bar at the bottom. Walkthrough: “Chat Interface Container: Content Viewport of Message Bubbles, plus a fixed bottom Input Row with Text Input and Send Action Target.” It’s a full‑screen component.",
+    "category": "Platform & Integration",
+    "volume": 2
+  },
+  {
+    "term": "Rating Container",
+    "definition": "A row of star icons (or similar) that represent a score, often interactive. Walkthrough: “Rating Container: horizontal Interaction Cluster of Star Icon Containers; filled stars indicate rating value.” It’s a numeric input disguised as visual metaphor.",
+    "category": "Platform & Integration",
+    "volume": 2
+  },
+  {
+    "term": "Live Stream Container",
+    "definition": "A media container for real‑time video, with overlays for viewer count, comments, and reactions. Walkthrough: “Live Stream Container: full‑width video with floating Badge (LIVE), Viewer Count, and Comment Overlay Stack.”",
+    "category": "Platform & Integration",
+    "volume": 2
+  },
+  {
+    "term": "Design System Token Container",
+    "definition": "A container that visually demonstrates design tokens—color swatches, typography scales, spacing grids. Walkthrough: “Token Container: grid of Color Swatch Containers with token names below.” Useful for documentation screens.",
+    "category": "Meta‑Structural & Workflow",
+    "volume": 2
+  },
+  {
+    "term": "Component Spec Container",
+    "definition": "A screen that documents a single component’s variants, states, and usage. Walkthrough: “Component Spec Container: titled with ‘Button’, shows Variant Rows (Primary, Secondary, Disabled) and Props Table.”",
+    "category": "Meta‑Structural & Workflow",
+    "volume": 2
+  },
+  {
+    "term": "Design Handoff Redline",
+    "definition": "A container overlay that shows spacing measurements and annotations, often seen in developer handoff. Walkthrough: “Design Handoff Redline Container: semi‑transparent overlay with measurement arrows between containers.” It’s a meta layer.",
+    "category": "Meta‑Structural & Workflow",
+    "volume": 2
+  },
+  {
+    "term": "User Flow Container",
+    "definition": "A container that diagrams the user’s path through multiple screens using nodes and arrows. Walkthrough: “User Flow Container: map‑like view with Screen Node Containers connected by Flow Arrow Containers.” It visualizes system relationships.",
+    "category": "Meta‑Structural & Workflow",
+    "volume": 2
+  },
+  {
+    "term": "Wireframe Stage Container",
+    "definition": "A deliberately low‑fidelity container representation for early ideation, using gray boxes and placeholder text. Walkthrough: “Wireframe Stage Container: monochrome, no skin, using only Box Placeholders and Line Text Placeholders.” This is the pre‑skin state of structural walkthrough.",
+    "category": "Meta‑Structural & Workflow",
+    "volume": 2
+  },
+  {
+    "term": "Prototype Interactive Container",
+    "definition": "A container with connected hotspots and clickable zones for simulation. Walkthrough: “Prototype Interactive Container: each Action Target links to another Screen Container, enabling click‑through testing.”",
+    "category": "Meta‑Structural & Workflow",
+    "volume": 2
+  },
+  {
+    "term": "A/B Variant Container",
+    "definition": "A container that shows two versions of the same UI side by side for comparison. Walkthrough: “A/B Variant Container: horizontal split with Variant A and Variant B, each containing the same screen structure with different CTA styling.”",
+    "category": "Meta‑Structural & Workflow",
+    "volume": 2
+  },
+  {
+    "term": "Accessibility Audit Container",
+    "definition": "A container highlighting accessible and inaccessible elements—contrast warnings, missing labels. Walkthrough: “Accessibility Audit Container: overlays the screen with Warning Badge Containers on low‑contrast text and missing alt‑text Images.”",
+    "category": "Meta‑Structural & Workflow",
+    "volume": 2
+  },
+  {
+    "term": "Cross‑Platform Parity Container",
+    "definition": "A container comparing the same screen across iOS, Android, and Web, noting platform‑specific adaptations. Walkthrough: “Cross‑Platform Parity Container: 3‑column layout with iOS Viewport, Android Viewport, and Web Viewport.”",
+    "category": "Meta‑Structural & Workflow",
+    "volume": 2
+  },
+  {
+    "term": "Walkthrough Specification Document",
+    "definition": "The ultimate output: a structured document combining all explanation sequence steps, the container blueprint, and the system relationship analysis. It serves as the single source of truth for the screen. This dictionary is its reference appendix.",
+    "category": "Meta‑Structural & Workflow",
+    "volume": 2
+  },
+  {
+    "term": "Drag‑and‑Drop Container",
+    "definition": "A container where items can be grabbed and reordered by dragging. It typically contains a Drag Handle and a list of draggable elements. Walkthrough: “Drag‑and‑Drop Container: vertical stack of reorderable List Item Containers, each with a Drag Handle, visual lift effect on drag start.” It describes complex pointer and touch interactions structurally.",
+    "category": "Advanced Interaction Patterns",
+    "volume": 3
+  },
+  {
+    "term": "Sortable Grid Container",
+    "definition": "A grid where items can be rearranged via drag, updating both visual order and underlying data. Walkthrough: “Sortable Grid Container: responsive grid of Card Containers; drag one card over another to swap positions, with placeholder slot indicator.” This combines grid layout with behavioral interaction.",
+    "category": "Advanced Interaction Patterns",
+    "volume": 3
+  },
+  {
+    "term": "Contextual Action Bar",
+    "definition": "A toolbar that appears only when items are selected, replacing or overlaying the main toolbar. Walkthrough: “Contextual Action Bar: Floating Layer at top, replacing Global Navigation when multiple List Items are selected, with bulk action targets (Delete, Move).” It prevents action clutter.",
+    "category": "Advanced Interaction Patterns",
+    "volume": 3
+  },
+  {
+    "term": "Gesture Pad Container",
+    "definition": "A dedicated touch area where continuous gestures like drawing, signing, or swiping patterns are captured. Walkthrough: “Gesture Pad Container: bounded canvas that captures finger strokes and renders a path; includes Clear Action Target.” It’s an input‑rich container.",
+    "category": "Advanced Interaction Patterns",
+    "volume": 3
+  },
+  {
+    "term": "3D Touch / Force Press Container",
+    "definition": "A container that responds to pressure‑sensitive presses, revealing a preview or quick actions (peek and pop). Walkthrough: “Force Press Container: on firm press, shows a Peek Modal with content preview; deeper press navigates to detail screen.” It’s platform‑specific but structurally relevant.",
+    "category": "Advanced Interaction Patterns",
+    "volume": 3
+  },
+  {
+    "term": "Haptic States Container",
+    "definition": "A container that coordinates multiple haptic feedback events—light, medium, heavy impacts—for different interactions within the same region. Walkthrough: “Haptic States Container: Action Targets trigger distinct haptic patterns: selection click for toggles, success thud for submit.” It’s a sensory behavior layer.",
+    "category": "Advanced Interaction Patterns",
+    "volume": 3
+  },
+  {
+    "term": "Eye‑Tracking Focus Container",
+    "definition": "A container that enlarges or highlights when the user’s gaze lingers on it, used in accessibility or VR interfaces. Walkthrough: “Eye‑Tracking Focus Container: expands slightly and brightens when gaze dwell time exceeds threshold.” This future‑forward container merges biometrics with UI.",
+    "category": "Advanced Interaction Patterns",
+    "volume": 3
+  },
+  {
+    "term": "Voice Command Indicator Container",
+    "definition": "A small, persistent container showing that voice control is active and listening, often with a pulsing waveform. Walkthrough: “Voice Command Indicator Container: floating bottom‑center, animated mic icon with ‘Listening…’ label, disappears on silence.” It’s a state‑aware system container.",
+    "category": "Advanced Interaction Patterns",
+    "volume": 3
+  },
+  {
+    "term": "Multi‑User Presence Container",
+    "definition": "A container that shows avatars or cursors of other users viewing or editing the same content in real time. Walkthrough: “Multi‑User Presence Container: horizontal row of Avatar Containers (with status dots) in the Global Navigation, indicating collaborative session.” It supports co‑operative experiences.",
+    "category": "Advanced Interaction Patterns",
+    "volume": 3
+  },
+  {
+    "term": "Spatial Navigation Container",
+    "definition": "A container designed for directional navigation (D‑pad, arrow keys) on TV or game consoles, where focus moves between focusable containers in a grid. Walkthrough: “Spatial Navigation Container: a grid of Focusable Card Containers, with visible focus ring moving on arrow key press.” It’s an interaction model for non‑pointer devices.",
+    "category": "Advanced Interaction Patterns",
+    "volume": 3
+  },
+  {
+    "term": "Medical Symptom Checker Container",
+    "definition": "A container with a body illustration and selectable body part overlays, plus a questionnaire panel. Walkthrough: “Symptom Checker Container: left side Body Map with Selectable Region Containers; right side vertical Stack of Question Containers.” It’s domain‑specific but follows recognizable patterns.",
+    "category": "Niche & Domain‑Specific Containers",
+    "volume": 3
+  },
+  {
+    "term": "E‑Commerce Product Card",
+    "definition": "A card container combining product image, name, price, rating, and an add‑to‑cart action. Walkthrough: “Product Card Container: vertical stack of Thumbnail (with Sale Badge), Title, Price Row, Rating Stars, and CTA Add‑to‑Cart Action Target.” It’s the atomic unit of shopping.",
+    "category": "Niche & Domain‑Specific Containers",
+    "volume": 3
+  },
+  {
+    "term": "Booking Calendar Strip",
+    "definition": "A horizontal scroll of date containers with price and availability indicators. Walkthrough: “Booking Calendar Strip: horizontal row of Date Chip Containers, each showing day, price label, and availability dot; selected chip has a prominent border.” Common in travel apps.",
+    "category": "Niche & Domain‑Specific Containers",
+    "volume": 3
+  },
+  {
+    "term": "Food Menu Section",
+    "definition": "A grouped list with categories (appetizers, mains) and items with descriptions, prices, and dietary icons. Walkthrough: “Menu Section Container: Section Header (category), followed by Menu Item Containers with Title, Description, Price Label, and Dietary Badge Container.”",
+    "category": "Niche & Domain‑Specific Containers",
+    "volume": 3
+  },
+  {
+    "term": "Fitness Dashboard Panel",
+    "definition": "A dashboard widget container showing activity rings, step count, heart rate, and trend chart. Walkthrough: “Fitness Dashboard Panel: horizontal stack of Activity Ring Container, Stat Label Containers, and Mini Line Chart Container.” It bundles multiple data visuals.",
+    "category": "Niche & Domain‑Specific Containers",
+    "volume": 3
+  },
+  {
+    "term": "Trading Watchlist Container",
+    "definition": "A real‑time list of financial instruments with price, change percentage, and sparkline. Walkthrough: “Watchlist Container: vertical stack of Ticker Row Containers, each with Symbol Label, Price, Change Badge (green/red), and tiny Sparkline Container.”",
+    "category": "Niche & Domain‑Specific Containers",
+    "volume": 3
+  },
+  {
+    "term": "Music Player Mini‑Bar",
+    "definition": "A persistent bottom bar showing album art, track info, and playback controls. Walkthrough: “Mini‑Player Container: fixed bottom row with Thumbnail, Title/Artist Stack, and Playback Control Cluster (prev, play, next). Expands to full player Modal.”",
+    "category": "Niche & Domain‑Specific Containers",
+    "volume": 3
+  },
+  {
+    "term": "Map Search Results List",
+    "definition": "A bottom sheet showing a scrollable list of result cards pinned to a map view. Walkthrough: “Map Results List Container: Bottom Sheet overlaying partial Map Container, with Search Bar, vertical List of Result Card Containers, each with distance label.”",
+    "category": "Niche & Domain‑Specific Containers",
+    "volume": 3
+  },
+  {
+    "term": "Checkout Flow Container",
+    "definition": "A multi‑step container sequence: cart review, shipping, payment, confirmation. Walkthrough: “Checkout Flow Container: Stepper at top, content panel changing steps with Form Groups for address and payment, and Action Targets (Continue, Back).” It represents an operational pipeline.",
+    "category": "Niche & Domain‑Specific Containers",
+    "volume": 3
+  },
+  {
+    "term": "Legal Consent Modal",
+    "definition": "A modal with dense terms text and explicit Agree/Disagree actions, often with a scroll‑to‑accept requirement. Walkthrough: “Legal Consent Modal: Modal Layer with Scrollable Terms Container, a ‘I Agree’ checkbox, and disabled‑until‑scrolled Accept Action Target.” It enforces compliance.",
+    "category": "Niche & Domain‑Specific Containers",
+    "volume": 3
+  },
+  {
+    "term": "Dashboard Grid System",
+    "definition": "A responsive grid that holds multiple Dashboard Widgets, allowing drag rearrangement and resize. Walkthrough: “Dashboard Grid System: 12‑column responsive grid of resizable Widget Containers, with row height unit and gap.” This is the outer scaffolding for analytics UI.",
+    "category": "Data & Visualization",
+    "volume": 3
+  },
+  {
+    "term": "Filtered Data Table",
+    "definition": "A Table Container with a Filter Bar above, sortable headers, and pagination below. Walkthrough: “Filtered Data Table: vertical stack of Filter Bar, Sortable Header Row, Data Rows, and Pagination Container. Each header is a Sort Action Target.” It’s a complete data exploration unit.",
+    "category": "Data & Visualization",
+    "volume": 3
+  },
+  {
+    "term": "Comparison Table Container",
+    "definition": "A table that compares features across products/plans, often with a sticky first column and horizontal scroll. Walkthrough: “Comparison Table Container: sticky first column with Feature Labels, horizontal scroll of Plan Columns with checkmark Icons and Action Targets (Select).”",
+    "category": "Data & Visualization",
+    "volume": 3
+  },
+  {
+    "term": "Funnel Chart Container",
+    "definition": "A visual representation of a linear process showing decreasing values at each step. Walkthrough: “Funnel Chart Container: vertical stack of trapezoid‑shaped Stage Containers, width proportional to value, with conversion labels.” It communicates flow and drop‑off.",
+    "category": "Data & Visualization",
+    "volume": 3
+  },
+  {
+    "term": "Heatmap Container",
+    "definition": "A grid of cells colored by intensity to show patterns (e.g., user activity, sales density). Walkthrough: “Heatmap Container: 2D grid of cell rectangles, each color‑coded from cool to hot based on data value. Legend Container decodes colors.”",
+    "category": "Data & Visualization",
+    "volume": 3
+  },
+  {
+    "term": "Tree Map Container",
+    "definition": "A nested rectangle visualisation for hierarchical data, where area represents a metric. Walkthrough: “Tree Map Container: large rectangle subdivided into smaller Category Rectangles, sized proportionally, each with Label.” It’s an area‑based chart.",
+    "category": "Data & Visualization",
+    "volume": 3
+  },
+  {
+    "term": "Sankey Diagram Container",
+    "definition": "A flow diagram where the width of arrows represents flow quantity between nodes. Walkthrough: “Sankey Diagram Container: curved, proportional flow paths connecting Node Containers from left to right.” It’s used for budget, energy, or user flow.",
+    "category": "Data & Visualization",
+    "volume": 3
+  },
+  {
+    "term": "Real‑Time Ticker Container",
+    "definition": "A horizontally scrolling strip of live data feeds (stock prices, news headlines). Walkthrough: “Real‑Time Ticker Container: Marquee Container with auto‑scrolling Ticker Item Containers, each a Label and numeric change Badge, pausing on hover.”",
+    "category": "Data & Visualization",
+    "volume": 3
+  },
+  {
+    "term": "GraphQL Query Playground",
+    "definition": "A split panel container with a query editor on one side and JSON result on the other. Walkthrough: “Query Playground Container: horizontal split of Code Block Container (graphql) and Response Tree Container, with Execute Action Target.” A developer tool UI.",
+    "category": "Data & Visualization",
+    "volume": 3
+  },
+  {
+    "term": "Log Viewer Container",
+    "definition": "A terminal‑like scrolling container with colored log lines and a filter input. Walkthrough: “Log Viewer Container: monospace scrolling list of Log Line Containers, with severity Badge (error/warn/info) and Text Filter Input above.” It’s a data‑heavy monitoring interface.",
+    "category": "Data & Visualization",
+    "volume": 3
+  },
+  {
+    "term": "Screen Reader Only Container",
+    "definition": "A container visually hidden but accessible to screen readers, containing descriptive text for icons or complex graphics. Walkthrough: “Screen Reader Only Container: off‑screen, holding a text alternative for the decorative Hero Media, announced by assistive technology.” It’s a critical accessibility supplement.",
+    "category": "Accessibility & Inclusion",
+    "volume": 3
+  },
+  {
+    "term": "Live Region Container",
+    "definition": "A container that announces dynamic content updates to screen readers without moving focus (e.g., “item added to cart”). Walkthrough: “Live Region Container: visually hidden, with assertive label, updates text when Toast appears, triggering announcement.” It’s a polite or assertive ARIA live region.",
+    "category": "Accessibility & Inclusion",
+    "volume": 3
+  },
+  {
+    "term": "Focus Order Guide Container",
+    "definition": "An overlay that numbers containers in the intended keyboard tab order for audit. Walkthrough: “Focus Order Guide Container: numbers each focusable element in reading order sequence, used during accessibility review.” It is a meta‑structural auditing tool.",
+    "category": "Accessibility & Inclusion",
+    "volume": 3
+  },
+  {
+    "term": "Color‑Blind Safe Indicator",
+    "definition": "A State Indicator Container that uses pattern or icon in addition to color to communicate status (e.g., checkmark plus green). Walkthrough: “Color‑Blind Safe Indicator: Error State includes an exclamation Icon alongside red text, ensuring meaning without color.” This pattern avoids color‑only coding.",
+    "category": "Accessibility & Inclusion",
+    "volume": 3
+  },
+  {
+    "term": "Reduced Motion Container",
+    "definition": "A behavioral wrapper that disables parallax, animations, or autoplay when the user prefers reduced motion. Walkthrough: “Reduced Motion Container: wraps Animated Transition; when preference is set, it instantly shows the end state without animation.” It respects OS‑level accessibility settings.",
+    "category": "Accessibility & Inclusion",
+    "volume": 3
+  },
+  {
+    "term": "Touch Target Size Container",
+    "definition": "A container that ensures interactive elements meet a minimum 44x44pt touch area, possibly extending beyond the visual widget. Walkthrough: “Touch Target Size Container: an invisible tappable area surrounding a small Icon, making it accessible for motor‑impaired users.”",
+    "category": "Accessibility & Inclusion",
+    "volume": 3
+  },
+  {
+    "term": "Dyslexia‑Friendly Text Container",
+    "definition": "A container that applies alternative typeface and increased letter spacing for improved readability. Walkthrough: “Dyslexia‑Friendly Text Container: wraps body text with a toggle; when active, uses a weighted font and wider tracking.” It’s a user‑preference adaption.",
+    "category": "Accessibility & Inclusion",
+    "volume": 3
+  },
+  {
+    "term": "High Contrast Mode Container",
+    "definition": "A container that forces borders and reduces transparency when system high‑contrast mode is on. Walkthrough: “High Contrast Mode Container: replaces subtle shadows with solid borders, ensuring component boundaries are visible.” It’s an OS‑responsive container.",
+    "category": "Accessibility & Inclusion",
+    "volume": 3
+  },
+  {
+    "term": "Caption Container",
+    "definition": "A container for closed captions or subtitles overlaid on video, with a background bar for readability. Walkthrough: “Caption Container: bottom‑aligned overlay on Media Container, with semi‑transparent background and white text, synced to audio track.”",
+    "category": "Accessibility & Inclusion",
+    "volume": 3
+  },
+  {
+    "term": "Sign Language Interpreter Container",
+    "definition": "A picture‑in‑picture container showing a sign language interpreter alongside video content. Walkthrough: “Sign Language Interpreter Container: PiP overlay in corner of Video Container, holding live interpreter video feed.” It’s an inclusive media pattern.",
+    "category": "Accessibility & Inclusion",
+    "volume": 3
+  },
+  {
+    "term": "Progressive Image Container",
+    "definition": "A container that first displays a low‑resolution placeholder, then transitions to the full image upon load. Walkthrough: “Progressive Image Container: initially shows a blurred thumbnail, then fades into the high‑res source using an Animated Transition.” It improves perceived performance.",
+    "category": "Performance & Loading Strategies",
+    "volume": 3
+  },
+  {
+    "term": "Priority Loading Container",
+    "definition": "A container that defers loading of off‑screen images or heavy components until they are near the viewport. Walkthrough: “Priority Loading Container: uses Viewport‑Aware logic; inner Media Container only fetches when about to scroll into view.” It’s lazy loading structurally described.",
+    "category": "Performance & Loading Strategies",
+    "volume": 3
+  },
+  {
+    "term": "Memory‑Managed List Container",
+    "definition": "A virtualized list that only renders containers for items currently visible, recycling DOM nodes. Walkthrough: “Memory‑Managed List Container: visible window of 20 List Item Containers, reusing containers as user scrolls; total item count is a prop.” It handles massive datasets.",
+    "category": "Performance & Loading Strategies",
+    "volume": 3
+  },
+  {
+    "term": "Preload Hint Container",
+    "definition": "A hidden container in the head that instructs the browser to prefetch critical resources (fonts, next‑screen bundles). Walkthrough: “Preload Hint Container: meta container referencing the next screen’s assets, placed in the Document Head.” It’s an invisible performance pattern.",
+    "category": "Performance & Loading Strategies",
+    "volume": 3
+  },
+  {
+    "term": "Offline Readiness Indicator",
+    "definition": "A container that appears when the network is lost, showing cached content availability. Walkthrough: “Offline Readiness Indicator: Banner Container at top with ‘You’re offline’ Label, plus a ‘View cached’ Action Target.” It’s a state‑driven network status container.",
+    "category": "Performance & Loading Strategies",
+    "volume": 3
+  },
+  {
+    "term": "Service Worker Update Prompt",
+    "definition": "A Snackbar or Banner container informing the user a new app version is available and prompting a refresh. Walkthrough: “Update Prompt Container: Bottom Sheet with ‘New version available’ Label and Refresh Action Target.” It manages app lifecycle.",
+    "category": "Performance & Loading Strategies",
+    "volume": 3
+  },
+  {
+    "term": "Background Sync Container",
+    "definition": "A non‑visual container that queues actions (like sending a message) when offline and processes them when online. Walkthrough: “Background Sync Container: invisible, holds pending operations; on reconnect, processes queue silently, then updates Live Region.” It’s a behavioral system container.",
+    "category": "Performance & Loading Strategies",
+    "volume": 3
+  },
+  {
+    "term": "Optimistic Update Container",
+    "definition": "A container that immediately shows the expected result of a user action before server confirmation, then reconciles. Walkthrough: “Optimistic Update Container: after tapping Like, the heart Icon instantly fills; if request fails, it reverts with a shake animation.”",
+    "category": "Performance & Loading Strategies",
+    "volume": 3
+  },
+  {
+    "term": "Bundle Split Point",
+    "definition": "A logical boundary in the component tree where code is split into a separate chunk, loaded on demand. Walkthrough: “Bundle Split Point: the Settings Section is lazy‑loaded as a separate container chunk when the user navigates to it.” It affects architecture, not visual.",
+    "category": "Performance & Loading Strategies",
+    "volume": 3
+  },
+  {
+    "term": "Idle‑Until‑Urgent Container",
+    "definition": "A container that performs low‑priority work only during browser idle time (e.g., analytics tracking, deferred rendering). Walkthrough: “Idle‑Until‑Urgent Container: hidden, schedules non‑critical operations when main thread is free, never blocking interactions.”",
+    "category": "Performance & Loading Strategies",
+    "volume": 3
+  },
+  {
+    "term": "Bi‑directional Text Container",
+    "definition": "A container that supports both LTR and RTL text, flipping layout and alignment automatically. Walkthrough: “Bi‑directional Text Container: when locale is Arabic, the Row reverses: Icon moves to the right, text aligns right. The container direction prop changes.” It enables global reach.",
+    "category": "Internationalization & Localization",
+    "volume": 3
+  },
+  {
+    "term": "Locale Selector Container",
+    "definition": "A Dropdown or segmented control for choosing language/region, often in footer or settings. Walkthrough: “Locale Selector Container: Dropdown with globe Icon, listing language options; selection updates all text containers instantly.” It’s a system control.",
+    "category": "Internationalization & Localization",
+    "volume": 3
+  },
+  {
+    "term": "Currency Formatter Container",
+    "definition": "A label container that dynamically formats numeric values with proper currency symbols, decimal separators, and grouping. Walkthrough: “Currency Formatter Container: Price Label that renders ‘1.234,56 €’ or ‘€1,234.56’ based on locale.” It’s a presentational logic container.",
+    "category": "Internationalization & Localization",
+    "volume": 3
+  },
+  {
+    "term": "Timezone‑Aware Date Container",
+    "definition": "A container displaying a timestamp converted to the user’s local timezone, with a tooltip showing original. Walkthrough: “Timezone‑Aware Date Container: shows ‘10:30 AM’ relative to viewer; on hover, Tooltip reveals ‘5:30 PM UTC’.” It handles temporal localization.",
+    "category": "Internationalization & Localization",
+    "volume": 3
+  },
+  {
+    "term": "Translation String Key Container",
+    "definition": "A text container that references a translation token rather than hardcoded text, enabling multi‑lingual support. Walkthrough: “Translation String Key Container: Label with key ‘checkout.payment.title’, rendered in the active language. Missing translations fall back gracefully.”",
+    "category": "Internationalization & Localization",
+    "volume": 3
+  },
+  {
+    "term": "Authentication Gate Container",
+    "definition": "A full‑screen wrapper that blocks content and shows a Login Form until the user is authenticated. Walkthrough: “Authentication Gate Container: if unauthenticated, displays Login Form over Content Viewport; after success, transition to main app.” It enforces access control structurally.",
+    "category": "Security & Privacy",
+    "volume": 3
+  },
+  {
+    "term": "Permission Request Container",
+    "definition": "A modal or inline prompt that asks for camera, location, or microphone access, explaining why it’s needed. Walkthrough: “Permission Request Container: Modal with explanation text and Allow/Deny Action Targets, triggered before accessing sensitive hardware.” It respects privacy by design.",
+    "category": "Security & Privacy",
+    "volume": 3
+  },
+  {
+    "term": "Data Encryption Indicator",
+    "definition": "A small icon or badge container showing that a connection or data is encrypted (lock icon, shield). Walkthrough: “Encryption Indicator Container: lock Icon beside sensitive data display, reassuring users about security.” It’s a trust signal.",
+    "category": "Security & Privacy",
+    "volume": 3
+  },
+  {
+    "term": "Session Timeout Warning Container",
+    "definition": "A modal that appears before an idle session expires, offering an option to stay logged in. Walkthrough: “Session Timeout Warning Container: Modal with a countdown timer, ‘Stay Logged In’ Action Target, and a cancel option that logs out.” It handles security gracefully.",
+    "category": "Security & Privacy",
+    "volume": 3
+  },
+  {
+    "term": "GDPR Consent Banner Container",
+    "definition": "A fixed bottom banner for cookie consent with options to accept, reject, or customize. Walkthrough: “GDPR Consent Banner Container: bottom‑fixed strip with summary text, Accept All Action Target, and Customize Action Target that opens a detailed preference Modal.” A legally required pattern.",
+    "category": "Security & Privacy",
+    "volume": 3
+  },
+  {
+    "term": "Legacy Component Wrapper Container",
+    "definition": "A container that encapsulates an older, non‑standard UI component, providing a consistent interface to the rest of the app. Walkthrough: “Legacy Component Wrapper Container: wraps a jQuery datepicker, exposing a Date Picker Container prop interface.” It aids gradual migration.",
+    "category": "Maintenance & Technical Debt",
+    "volume": 3
+  },
+  {
+    "term": "Deprecation Badge Container",
+    "definition": "A label or tooltip on a container indicating it will soon be removed or changed, guiding developers and designers. Walkthrough: “Deprecation Badge Container: small orange badge ‘v1’ on the old Button Container, with Tooltip directing to the new version.” It manages lifecycle in design systems.",
+    "category": "Maintenance & Technical Debt",
+    "volume": 3
+  },
+  {
+    "term": "Beta Feature Container",
+    "definition": "A container with a “Beta” label that may have limited functionality or stability, often with a feedback link. Walkthrough: “Beta Feature Container: Section with ‘Beta’ Badge and a ‘Send Feedback’ Action Target; may be behind a feature flag.” It communicates maturity.",
+    "category": "Maintenance & Technical Debt",
+    "volume": 3
+  },
+  {
+    "term": "Feature Flag Container",
+    "definition": "A conditional wrapper that renders its children only if a feature flag is enabled for the user. Walkthrough: “Feature Flag Container: wraps the New Dashboard Widget; visibility controlled by a remote toggle, enabling gradual rollout.” It’s a deployment‑pattern container.",
+    "category": "Maintenance & Technical Debt",
+    "volume": 3
+  },
+  {
+    "term": "Code‑Generated Container",
+    "definition": "A container whose structure is automatically derived from a schema or API response, not manually crafted. Walkthrough: “Code‑Generated Container: Form Group rendered dynamically from a JSON schema, with recursive Field Containers.” It represents a meta‑structural shift.",
+    "category": "Maintenance & Technical Debt",
+    "volume": 3
+  },
+  {
+    "term": "AI‑Generated Content Container",
+    "definition": "A container that displays content produced by a generative AI model (text, image, code). It includes a disclaimer badge and feedback actions. Walkthrough: “AI‑Generated Content Container: article body with subtle ‘AI‑assisted’ Badge, a Thumbs Up/Down Feedback Cluster, and a Report Action Target.”",
+    "category": "Future‑Forward & Emerging Patterns",
+    "volume": 3
+  },
+  {
+    "term": "Adaptive Interface Container",
+    "definition": "A container that rearranges or changes its sub‑containers based on user behavior, context, or inferred intent, not just viewport size. Walkthrough: “Adaptive Interface Container: shows frequently used actions prominently; lesser‑used items move to a ‘More’ menu dynamically.” It learns over time.",
+    "category": "Future‑Forward & Emerging Patterns",
+    "volume": 3
+  },
+  {
+    "term": "Spatial Computing Container",
+    "definition": "A container that exists in a 3D augmented reality space, with depth, scale, and environment anchoring. Walkthrough: “Spatial Computing Container: volumetric UI panel floating in room‑scale space, with gaze‑and‑pinch interaction; includes a Handle for repositioning.” For visionOS and similar.",
+    "category": "Future‑Forward & Emerging Patterns",
+    "volume": 3
+  },
+  {
+    "term": "Brain‑Computer Interface (BCI) Container",
+    "definition": "A speculative container that responds to neural signals, highlighting options as the user thinks about them. Walkthrough: “BCI Container: a grid of options that progressively highlights based on inferred attention, with a confirm command selected by deliberate focus.” It’s an emerging input modality.",
+    "category": "Future‑Forward & Emerging Patterns",
+    "volume": 3
+  },
+  {
+    "term": "Universal Component Definition",
+    "definition": "A meta‑container that serves as the single specification for a component across all platforms (web, iOS, Android), generated from a Structural Walkthrough. Walkthrough: “Universal Component Definition: JSON/blueprint describing an Avatar Container with its tokens, states, and platform mappings; the ultimate output of this dictionary’s methodology.”",
+    "category": "Future‑Forward & Emerging Patterns",
+    "volume": 3
+  }
+];
 
-      const topicMapping = {
-        "Core Vocabulary": "1. Fundamentals",
-        "Containers & Widgets": "1. Fundamentals",
-        "Layout & Composition": "2. Layout",
-        "Navigation Systems": "3. Navigation",
-        "Navigation & Wayfinding Details": "3. Navigation",
-        "Interaction & Affordance": "4. Interaction",
-        "Interactive Micro‑Patterns": "4. Interaction",
-        "State & Feedback": "5. State & Feedback",
-        "Patterns & Reusable Structures": "6. Patterns",
-        "Content Display & Formatting": "6. Patterns",
-        "Form & Input Patterns": "6. Patterns",
-        "System & Ecosystem": "7. System & Ecosystem",
-        "Advanced & Meta Terms": "7. System & Ecosystem",
-        "Micro‑Containers & Detail Elements": "2. Layout",
-        "Behavioral & Animation Containers": "4. Interaction",
-        "Responsive & Multi‑Viewport": "2. Layout",
-        "Platform & Integration": "7. System & Ecosystem",
-        "Meta‑Structural & Workflow": "7. System & Ecosystem",
-        "Advanced Interaction Patterns": "4. Interaction",
-        "Niche & Domain‑Specific Containers": "6. Patterns",
-        "Data & Visualization": "6. Patterns",
-        "Accessibility & Inclusion": "8. Accessibility",
-        "Performance & Loading Strategies": "9. Performance",
-        "Internationalization & Localization": "10. Internationalization",
-        "Security & Privacy": "11. Security",
-        "Maintenance & Technical Debt": "12. Maintenance",
-        "Future‑Forward & Emerging Patterns": "13. Future‑Forward"
-      };
+    // All the app logic remains the same
+    const cardGrid = document.getElementById('cardGrid');
+    const searchInput = document.getElementById('search');
+    const volumeFilter = document.getElementById('volumeFilter');
+    const sortBySelect = document.getElementById('sortBy');
+    const randomBtn = document.getElementById('randomBtn');
+    const darkToggle = document.getElementById('darkToggle');
+    const viewToggle = document.getElementById('viewToggle');
+    const reviewedCountEl = document.getElementById('reviewedCount');
+    const resetReviewedBtn = document.getElementById('resetReviewed');
 
-      const STORAGE_KEY = 'sw_dictionary_reviewed_ig';
-      let reviewedTerms = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'));
+    const topicMapping = {
+      "Core Vocabulary": "1. Fundamentals",
+      "Containers & Widgets": "1. Fundamentals",
+      "Layout & Composition": "2. Layout",
+      "Navigation Systems": "3. Navigation",
+      "Navigation & Wayfinding Details": "3. Navigation",
+      "Interaction & Affordance": "4. Interaction",
+      "Interactive Micro‑Patterns": "4. Interaction",
+      "State & Feedback": "5. State & Feedback",
+      "Patterns & Reusable Structures": "6. Patterns",
+      "Content Display & Formatting": "6. Patterns",
+      "Form & Input Patterns": "6. Patterns",
+      "System & Ecosystem": "7. System & Ecosystem",
+      "Advanced & Meta Terms": "7. System & Ecosystem",
+      "Micro‑Containers & Detail Elements": "2. Layout",
+      "Behavioral & Animation Containers": "4. Interaction",
+      "Responsive & Multi‑Viewport": "2. Layout",
+      "Platform & Integration": "7. System & Ecosystem",
+      "Meta‑Structural & Workflow": "7. System & Ecosystem",
+      "Advanced Interaction Patterns": "4. Interaction",
+      "Niche & Domain‑Specific Containers": "6. Patterns",
+      "Data & Visualization": "6. Patterns",
+      "Accessibility & Inclusion": "8. Accessibility",
+      "Performance & Loading Strategies": "9. Performance",
+      "Internationalization & Localization": "10. Internationalization",
+      "Security & Privacy": "11. Security",
+      "Maintenance & Technical Debt": "12. Maintenance",
+      "Future‑Forward & Emerging Patterns": "13. Future‑Forward"
+    };
 
-      function saveReviews() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify([...reviewedTerms]));
-        updateStats();
-      }
-      function toggleReview(term) {
-        if (reviewedTerms.has(term)) reviewedTerms.delete(term);
-        else reviewedTerms.add(term);
+    const STORAGE_KEY = 'sw_dictionary_reviewed_ig';
+    let reviewedTerms = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'));
+
+    function saveReviews() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([...reviewedTerms]));
+      updateStats();
+    }
+    function toggleReview(term) {
+      if (reviewedTerms.has(term)) reviewedTerms.delete(term);
+      else reviewedTerms.add(term);
+      saveReviews();
+    }
+    function isReviewed(term) { return reviewedTerms.has(term); }
+    function updateStats() {
+      reviewedCountEl.textContent = `Reviewed: ${reviewedTerms.size}/250`;
+    }
+    function resetReviews() {
+      if (confirm('Clear all review progress?')) {
+        reviewedTerms.clear();
         saveReviews();
-      }
-      function isReviewed(term) { return reviewedTerms.has(term); }
-      function updateStats() {
-        reviewedCountEl.textContent = `Reviewed: ${reviewedTerms.size}/250`;
-      }
-      function resetReviews() {
-        if (confirm('Clear all review progress?')) {
-          reviewedTerms.clear();
-          saveReviews();
-          renderCards(getFilteredAndSorted());
-        }
-      }
-
-      // Dark mode
-      if (localStorage.getItem('sw_dark_mode_ig') === 'true') {
-        document.body.classList.add('dark');
-        darkToggle.textContent = '☀️';
-      }
-      darkToggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark');
-        const isDark = document.body.classList.contains('dark');
-        localStorage.setItem('sw_dark_mode_ig', isDark);
-        darkToggle.textContent = isDark ? '☀️' : '🌙';
-      });
-
-      // View toggle
-      let isListView = false;
-      viewToggle.addEventListener('click', () => {
-        isListView = !isListView;
-        cardGrid.classList.toggle('list-view', isListView);
-        viewToggle.textContent = isListView ? '🟦' : '📋';
         renderCards(getFilteredAndSorted());
-      });
+      }
+    }
 
-      function getFilteredAndSorted() {
-        const query = searchInput.value.toLowerCase().trim();
-        const volume = volumeFilter.value;
-        const sortMode = sortBySelect.value;
-        let filtered = [...dictionary];
-        if (volume !== 'all') filtered = filtered.filter(e => e.volume == volume);
-        if (query) {
-          filtered = filtered.filter(e =>
-            e.term.toLowerCase().includes(query) ||
-            e.definition.toLowerCase().includes(query) ||
-            e.category.toLowerCase().includes(query)
-          );
-        }
-        if (sortMode === 'az') filtered.sort((a,b) => a.term.localeCompare(b.term));
-        else if (sortMode === 'za') filtered.sort((a,b) => b.term.localeCompare(a.term));
-        else if (sortMode === 'topic') {
-          filtered.sort((a,b) => {
-            const ta = topicMapping[a.category] || 'Z. Other';
-            const tb = topicMapping[b.category] || 'Z. Other';
-            if (ta < tb) return -1;
-            if (ta > tb) return 1;
-            return a.term.localeCompare(b.term);
+    if (localStorage.getItem('sw_dark_mode_ig') === 'true') {
+      document.body.classList.add('dark');
+      darkToggle.textContent = '☀️';
+    }
+    darkToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      const isDark = document.body.classList.contains('dark');
+      localStorage.setItem('sw_dark_mode_ig', isDark);
+      darkToggle.textContent = isDark ? '☀️' : '🌙';
+    });
+
+    let isListView = false;
+    viewToggle.addEventListener('click', () => {
+      isListView = !isListView;
+      cardGrid.classList.toggle('list-view', isListView);
+      viewToggle.textContent = isListView ? '🟦' : '📋';
+      renderCards(getFilteredAndSorted());
+    });
+
+    function getFilteredAndSorted() {
+      const query = searchInput.value.toLowerCase().trim();
+      const volume = volumeFilter.value;
+      const sortMode = sortBySelect.value;
+      let filtered = [...dictionary];
+      if (volume !== 'all') filtered = filtered.filter(e => e.volume == volume);
+      if (query) {
+        filtered = filtered.filter(e =>
+          e.term.toLowerCase().includes(query) ||
+          e.definition.toLowerCase().includes(query) ||
+          e.category.toLowerCase().includes(query)
+        );
+      }
+      if (sortMode === 'az') filtered.sort((a,b) => a.term.localeCompare(b.term));
+      else if (sortMode === 'za') filtered.sort((a,b) => b.term.localeCompare(a.term));
+      else if (sortMode === 'topic') {
+        filtered.sort((a,b) => {
+          const ta = topicMapping[a.category] || 'Z. Other';
+          const tb = topicMapping[b.category] || 'Z. Other';
+          if (ta < tb) return -1;
+          if (ta > tb) return 1;
+          return a.term.localeCompare(b.term);
+        });
+      }
+      return filtered;
+    }
+
+    function renderCards(entries) {
+      cardGrid.innerHTML = '';
+      if (entries.length === 0) {
+        cardGrid.innerHTML = '<div class="no-results">No matching terms found.</div>';
+        updateStats();
+        return;
+      }
+      entries.forEach(entry => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.term = entry.term;
+        if (isReviewed(entry.term)) card.classList.add('reviewed');
+
+        if (isListView) {
+          card.innerHTML = `
+            <div class="card-inner">
+              <div class="card-front">
+                <span class="volume-badge">Vol. ${entry.volume}</span>
+                <span class="term">${entry.term}</span>
+                <span style="flex:1"></span>
+                <span class="flip-hint" style="border:none;margin:0;padding:0;">↻</span>
+              </div>
+            </div>
+          `;
+          card.addEventListener('click', () => {
+            const wasExpanded = card.classList.contains('expanded');
+            document.querySelectorAll('.list-view .card.expanded').forEach(c => c.classList.remove('expanded'));
+            if (!wasExpanded) {
+              card.classList.add('expanded');
+              if (!card.querySelector('.card-back')) {
+                const back = document.createElement('div');
+                back.className = 'card-back';
+                back.innerHTML = `<div class="definition">${entry.definition}</div>`;
+                card.appendChild(back);
+              }
+            } else {
+              card.classList.remove('expanded');
+            }
+            toggleReview(entry.term);
+            card.classList.toggle('reviewed', isReviewed(entry.term));
+            updateStats();
+          });
+        } else {
+          card.innerHTML = `
+            <div class="card-inner">
+              <div class="card-front">
+                <span class="volume-badge">Vol. ${entry.volume}</span>
+                <div class="term">${entry.term}</div>
+                <div class="category">${entry.category}</div>
+                <div class="flip-hint">↻ Tap to reveal definition</div>
+              </div>
+              <div class="card-back">
+                <div class="term">${entry.term}</div>
+                <div class="definition">${entry.definition}</div>
+                <div class="flip-hint">↻ Tap to hide</div>
+              </div>
+            </div>
+          `;
+          card.addEventListener('click', () => {
+            card.classList.toggle('flipped');
+            toggleReview(entry.term);
+            card.classList.toggle('reviewed', isReviewed(entry.term));
+            updateStats();
           });
         }
-        return filtered;
-      }
 
-      function renderCards(entries) {
-        cardGrid.innerHTML = '';
-        if (entries.length === 0) {
-          cardGrid.innerHTML = '<div class="no-results">No matching terms found.</div>';
-          updateStats();
-          return;
+        if (isReviewed(entry.term)) {
+          const badge = document.createElement('div');
+          badge.className = 'review-badge';
+          badge.textContent = '✓';
+          card.appendChild(badge);
         }
-        entries.forEach(entry => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.dataset.term = entry.term;
-          if (isReviewed(entry.term)) card.classList.add('reviewed');
+        cardGrid.appendChild(card);
+      });
+      updateStats();
+    }
 
-          if (isListView) {
-            card.innerHTML = `
-              <div class="card-inner">
-                <div class="card-front">
-                  <span class="volume-badge">Vol. ${entry.volume}</span>
-                  <span class="term">${entry.term}</span>
-                  <span style="flex:1"></span>
-                  <span class="flip-hint" style="border:none;margin:0;padding:0;">↻</span>
-                </div>
-              </div>
-            `;
-            card.addEventListener('click', () => {
-              const wasExpanded = card.classList.contains('expanded');
-              document.querySelectorAll('.list-view .card.expanded').forEach(c => c.classList.remove('expanded'));
-              if (!wasExpanded) {
-                card.classList.add('expanded');
-                if (!card.querySelector('.card-back')) {
-                  const back = document.createElement('div');
-                  back.className = 'card-back';
-                  back.innerHTML = `<div class="definition">${entry.definition}</div>`;
-                  card.appendChild(back);
-                }
-              } else {
-                card.classList.remove('expanded');
-              }
-              toggleReview(entry.term);
-              card.classList.toggle('reviewed', isReviewed(entry.term));
-              updateStats();
-            });
-          } else {
-            card.innerHTML = `
-              <div class="card-inner">
-                <div class="card-front">
-                  <span class="volume-badge">Vol. ${entry.volume}</span>
-                  <div class="term">${entry.term}</div>
-                  <div class="category">${entry.category}</div>
-                  <div class="flip-hint">↻ Tap to reveal definition</div>
-                </div>
-                <div class="card-back">
-                  <div class="term">${entry.term}</div>
-                  <div class="definition">${entry.definition}</div>
-                  <div class="flip-hint">↻ Tap to hide</div>
-                </div>
-              </div>
-            `;
-            card.addEventListener('click', () => {
-              card.classList.toggle('flipped');
-              toggleReview(entry.term);
-              card.classList.toggle('reviewed', isReviewed(entry.term));
-              updateStats();
-            });
-          }
+    function scrollToCard(cardEl) {
+      cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      cardEl.classList.add('highlight');
+      setTimeout(() => cardEl.classList.remove('highlight'), 1200);
+    }
 
-          if (isReviewed(entry.term)) {
-            const badge = document.createElement('div');
-            badge.className = 'review-badge';
-            badge.textContent = '✓';
-            card.appendChild(badge);
-          }
-          cardGrid.appendChild(card);
-        });
-        updateStats();
-      }
-
-      function scrollToCard(cardEl) {
-        cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        cardEl.classList.add('highlight');
-        setTimeout(() => cardEl.classList.remove('highlight'), 1200);
-      }
-
-      function randomCard() {
-        const entries = getFilteredAndSorted();
-        if (entries.length === 0) return;
-        const idx = Math.floor(Math.random() * entries.length);
-        const target = [...cardGrid.children].find(c => c.dataset.term === entries[idx].term);
-        if (target) {
-          scrollToCard(target);
-          if (!isListView) {
-            target.classList.add('flipped');
-            setTimeout(() => target.classList.remove('flipped'), 2000);
-          }
+    function randomCard() {
+      const entries = getFilteredAndSorted();
+      if (entries.length === 0) return;
+      const idx = Math.floor(Math.random() * entries.length);
+      const target = [...cardGrid.children].find(c => c.dataset.term === entries[idx].term);
+      if (target) {
+        scrollToCard(target);
+        if (!isListView) {
+          target.classList.add('flipped');
+          setTimeout(() => target.classList.remove('flipped'), 2000);
         }
       }
+    }
 
-      searchInput.addEventListener('input', () => renderCards(getFilteredAndSorted()));
-      volumeFilter.addEventListener('change', () => renderCards(getFilteredAndSorted()));
-      sortBySelect.addEventListener('change', () => renderCards(getFilteredAndSorted()));
-      randomBtn.addEventListener('click', randomCard);
-      resetReviewedBtn.addEventListener('click', resetReviews);
+    searchInput.addEventListener('input', () => renderCards(getFilteredAndSorted()));
+    volumeFilter.addEventListener('change', () => renderCards(getFilteredAndSorted()));
+    sortBySelect.addEventListener('change', () => renderCards(getFilteredAndSorted()));
+    randomBtn.addEventListener('click', randomCard);
+    resetReviewedBtn.addEventListener('click', resetReviews);
 
-      renderCards(dictionary);
-    })();
+    renderCards(dictionary);
   </script>
 </body>
 </html>
